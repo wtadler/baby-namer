@@ -588,6 +588,48 @@ function updateThreshDesc() {
   document.getElementById('threshDesc').textContent = desc;
 }
 
+function updateYearFill() {
+  const start = parseInt(document.getElementById('yearStart').value);
+  const end   = parseInt(document.getElementById('yearEnd').value);
+  const span  = MAX_YEAR - MIN_YEAR;
+  const fill  = document.getElementById('yearFill');
+  fill.style.left  = ((start - MIN_YEAR) / span * 100) + '%';
+  fill.style.width = ((end - start)       / span * 100) + '%';
+}
+
+function updateYearLabel() {
+  const start = parseInt(document.getElementById('yearStart').value);
+  const end   = parseInt(document.getElementById('yearEnd').value);
+  document.getElementById('yearLabel').textContent = `${start}–${end}`;
+}
+
+let yearDebounce = null;
+async function onYearChange() {
+  updateYearFill();
+  updateYearLabel();
+  clearTimeout(yearDebounce);
+  yearDebounce = setTimeout(async () => {
+    const start = parseInt(document.getElementById('yearStart').value);
+    const end   = parseInt(document.getElementById('yearEnd').value);
+    const names = await loadRange(start, end);
+    allNames = names;
+    // Re-add tagged names missing from SSA data for this range
+    const ssnNames = new Set(allNames.map(n => n.name));
+    for (const nameList of Object.values(tagSets)) {
+      for (const name of nameList) {
+        if (!ssnNames.has(name)) {
+          const g = nameData[name]?.gender;
+          const pctM = g === 'm' ? 100 : g === 'f' ? 0 : 50;
+          allNames.push({ name, m: 0, f: 0, total: 0, pctM });
+          ssnNames.add(name);
+        }
+      }
+    }
+    globalMaxTotal = Math.max(...allNames.map(n => n.total), 1);
+    renderTable();
+  }, 300);
+}
+
 // Sort click
 document.querySelector('thead').addEventListener('click', e => {
   const th = e.target.closest('th[data-col]');
@@ -622,6 +664,17 @@ document.getElementById('threshMax').addEventListener('input', function() {
   updateSliderFill();
   updateThreshDesc();
   renderTable();
+});
+
+document.getElementById('yearStart').addEventListener('input', function() {
+  const endEl = document.getElementById('yearEnd');
+  if (parseInt(this.value) > parseInt(endEl.value)) endEl.value = this.value;
+  onYearChange();
+});
+document.getElementById('yearEnd').addEventListener('input', function() {
+  const startEl = document.getElementById('yearStart');
+  if (parseInt(this.value) < parseInt(startEl.value)) startEl.value = this.value;
+  onYearChange();
 });
 
 document.getElementById('firstLetter').addEventListener('change', renderTable);
