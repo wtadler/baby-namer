@@ -139,6 +139,26 @@
     line-height: 1.4;
   }
 
+  /* Gradient threshold slider */
+  .thresh-slider::before {
+    background: linear-gradient(to right, #ec4899 0%, #d1d5db 50%, #3b82f6 100%);
+  }
+  .thresh-slider .dual-fill { display: none; }
+  .thresh-slider input[type=range]:first-of-type::-webkit-slider-thumb { border-color: #ec4899; }
+  .thresh-slider input[type=range]:last-of-type::-webkit-slider-thumb  { border-color: #3b82f6; }
+  .thresh-slider input[type=range]:first-of-type::-moz-range-thumb { border-color: #ec4899; }
+  .thresh-slider input[type=range]:last-of-type::-moz-range-thumb  { border-color: #3b82f6; }
+
+  /* Column / control info icons */
+  .col-tip-icon {
+    font-size: 0.7rem;
+    color: #aaa;
+    cursor: help;
+    margin-left: 3px;
+    vertical-align: middle;
+  }
+  .col-tip-icon:hover { color: #666; }
+
   /* Letter selects */
   .letter-group {
     display: flex;
@@ -256,7 +276,6 @@
     font-weight: 600;
     font-size: 0.95rem;
     letter-spacing: -0.01em;
-    width: 42%;
     overflow: hidden;
   }
   .td-name-row {
@@ -279,8 +298,8 @@
   .fav-btn:hover { color: #ec4899; }
   .fav-btn.is-fav { color: #ec4899; }
 
-  .td-total { font-variant-numeric: tabular-nums; color: #333; }
-  .td-pct { width: 180px; }
+  .td-total { font-variant-numeric: tabular-nums; color: #333; width: 140px; }
+  .td-pct { width: 200px; }
 
   .bar-cell { display: flex; align-items: center; gap: 8px; }
 
@@ -306,7 +325,7 @@
     min-width: 38px;
     text-align: right;
   }
-  .td-pop { width: 160px; }
+  .td-pop { width: 195px; }
   .pop-bar-track {
     flex: 1;
     height: 8px;
@@ -414,8 +433,8 @@
 
 <div class="controls">
   <div class="ctrl">
-    <span class="ctrl-label">Unisex threshold</span>
-    <div class="dual-slider">
+    <span class="ctrl-label">% Assigned Male <span class="col-tip-icon" data-tip="threshold" title="">ⓘ</span></span>
+    <div class="dual-slider thresh-slider">
       <div class="dual-fill" id="dualFill"></div>
       <input type="range" id="threshMin" min="0" max="100" value="10" step="1">
       <input type="range" id="threshMax" min="0" max="100" value="90" step="1">
@@ -462,9 +481,9 @@
       <tr>
         <th class="td-rank"></th>
         <th data-col="name">Name <span class="sort-arrow">↕</span></th>
-        <th data-col="total" class="sorted">Popularity <span class="sort-arrow">↓</span></th>
-        <th data-col="total">Total births <span class="sort-arrow">↕</span></th>
-        <th data-col="pctM">% Assigned Male <span class="sort-arrow">↕</span></th>
+        <th data-col="total" class="sorted">Popularity <span class="sort-arrow">↓</span> <span class="col-tip-icon" data-tip="popularity">ⓘ</span></th>
+        <th data-col="total">Total births <span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="total">ⓘ</span></th>
+        <th data-col="pctM">% Assigned Male <span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="pctM">ⓘ</span></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -866,9 +885,45 @@ document.getElementById('tableBody').addEventListener('mouseleave', () => {
   nameTooltip.style.display = 'none';
 });
 
+// ── Column + control info tooltips ────────────────────────────────────────────
+
+function colTipText(key) {
+  const yr = document.getElementById('yearLabel').textContent; // e.g. "2015–2024"
+  switch (key) {
+    case 'popularity':
+      return `Relative popularity for ${yr} — bar length shows how this name's total births compare to the most popular name in the selected period.`;
+    case 'total':
+      return `Total babies registered with this name in the US from ${yr}, per Social Security Administration records.`;
+    case 'pctM':
+      return `Share of babies with this name recorded as male at birth in SSA data from ${yr}.`;
+    case 'threshold':
+      return `Filter by how gendered a name is. Drag the pink handle to set the minimum % male (excludes very female names) and the blue handle to set the maximum (excludes very male names). Names in between are shown.`;
+    default: return '';
+  }
+}
+
+document.addEventListener('mouseover', e => {
+  const icon = e.target.closest('.col-tip-icon[data-tip]');
+  if (!icon) return;
+  const text = colTipText(icon.dataset.tip);
+  if (!text) return;
+  nameTooltip.innerHTML = `<p>${esc(text)}</p>`;
+  nameTooltip.style.display = 'block';
+  const r = icon.getBoundingClientRect();
+  nameTooltip.style.left = Math.min(r.left, window.innerWidth - 340) + 'px';
+  nameTooltip.style.top  = (r.bottom + 6) + 'px';
+});
+
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('.col-tip-icon[data-tip]')) {
+    nameTooltip.style.display = 'none';
+  }
+});
+
 // ── Sort ──────────────────────────────────────────────────────────────────────
 
 document.querySelector('thead').addEventListener('click', e => {
+  if (e.target.closest('.col-tip-icon')) return;
   const th = e.target.closest('th[data-col]');
   if (!th) return;
   const col = th.dataset.col;
