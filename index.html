@@ -36,18 +36,17 @@
     color: #666;
     white-space: nowrap;
   }
-  .year-slider-wrap {
-    position: relative;
-    padding-bottom: 18px;
-  }
-  .year-thumb-label {
-    position: absolute;
-    bottom: 0;
-    font-size: 0.68rem;
-    color: #888;
-    transform: translateX(-50%);
+  .year-bound {
+    font-size: 0.72rem;
+    color: #aaa;
     white-space: nowrap;
-    pointer-events: none;
+  }
+  .year-range-val {
+    font-size: 0.78rem;
+    color: #3b82f6;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 72px;
   }
 
   .controls {
@@ -259,7 +258,7 @@
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    color: #ddd;
+    color: #ccc;
     padding: 0;
     line-height: 1;
     flex-shrink: 0;
@@ -333,7 +332,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 300px;
   }
 
   .loading { text-align: center; padding: 60px; color: #888; font-size: 0.95rem; }
@@ -388,15 +386,14 @@
   <h1>Baby Name Explorer</h1>
   <div class="year-range-ctrl">
     <span class="year-range-ctrl-label">Using data from year range:</span>
-    <div class="year-slider-wrap">
-      <div class="dual-slider" style="width:160px">
-        <div class="dual-fill" id="yearFill"></div>
-        <input type="range" id="yearStart" min="1880" max="2024" value="2015" step="1">
-        <input type="range" id="yearEnd"   min="1880" max="2024" value="2024" step="1">
-      </div>
-      <span class="year-thumb-label" id="yearStartLabel">2015</span>
-      <span class="year-thumb-label" id="yearEndLabel">2024</span>
+    <span class="year-bound">1880</span>
+    <div class="dual-slider" style="width:160px">
+      <div class="dual-fill" id="yearFill"></div>
+      <input type="range" id="yearStart" min="1880" max="2024" value="2015" step="1">
+      <input type="range" id="yearEnd"   min="1880" max="2024" value="2024" step="1">
     </div>
+    <span class="year-bound">2024</span>
+    <span class="year-range-val" id="yearLabel">2015–2024</span>
   </div>
 </header>
 
@@ -437,7 +434,7 @@
   </div>
   <div class="ctrl fav-ctrl">
     <span class="ctrl-label">Favorites</span>
-    <button id="favFilterBtn" class="fav-filter-btn">♡ Show favorites</button>
+    <button id="favFilterBtn" class="fav-filter-btn">♥ Show favorites</button>
   </div>
 </div>
 
@@ -462,7 +459,7 @@
 <div id="nameTooltip" class="name-tooltip" style="display:none"></div>
 
 <footer class="site-footer">
-  Source: <a href="https://www.ssa.gov/oact/babynames/" target="_blank" rel="noopener">Social Security Administration</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>
+  Sources: <a href="https://www.ssa.gov/oact/babynames/" target="_blank" rel="noopener">Social Security Administration</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>
 </footer>
 
 <script>
@@ -614,7 +611,7 @@ function renderTable() {
         <td class="td-rank">${i + 1}</td>
         <td class="td-name">
           <div class="td-name-row">
-            <button class="fav-btn${isFav ? ' is-fav' : ''}" data-name="${esc(n.name)}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${isFav ? '♥' : '♡'}</button>
+            <button class="fav-btn${isFav ? ' is-fav' : ''}" data-name="${esc(n.name)}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">♥</button>
             <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" target="_blank" rel="noopener">${esc(n.name)}</a>
           </div>
           ${usageHtml(n.name)}
@@ -700,13 +697,7 @@ function updateYearFill() {
 function updateYearLabel() {
   const start = parseInt(document.getElementById('yearStart').value, 10);
   const end   = parseInt(document.getElementById('yearEnd').value, 10);
-  const span  = MAX_YEAR - MIN_YEAR;
-  const startLbl = document.getElementById('yearStartLabel');
-  const endLbl   = document.getElementById('yearEndLabel');
-  startLbl.textContent = start;
-  startLbl.style.left  = ((start - MIN_YEAR) / span * 100) + '%';
-  endLbl.textContent = end;
-  endLbl.style.left  = ((end - MIN_YEAR) / span * 100) + '%';
+  document.getElementById('yearLabel').textContent = `${start}–${end}`;
 }
 
 let yearDebounce = null;
@@ -750,7 +741,7 @@ function toggleFavorite(name) {
 
 document.getElementById('favFilterBtn').addEventListener('click', function() {
   favoritesMode = !favoritesMode;
-  this.textContent = favoritesMode ? '♥ Favorites only' : '♡ Show favorites';
+  this.textContent = favoritesMode ? '♥ Favorites only' : '♥ Show favorites';
   this.classList.toggle('active', favoritesMode);
   document.querySelector('.controls').classList.toggle('favorites-active', favoritesMode);
   saveSettings();
