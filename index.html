@@ -418,7 +418,7 @@ async function loadRange(startYear, endYear) {
 
   for (let year = startYear; year <= endYear; year++) {
     let text = yearCache.get(year);
-    if (!text) {
+    if (text === undefined) {
       try {
         const res = await fetch(`ssa-data/yob${year}.txt`);
         if (!res.ok) throw new Error(res.status);
