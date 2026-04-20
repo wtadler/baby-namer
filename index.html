@@ -405,37 +405,42 @@
 </div>
 
 <script>
-const YEARS = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+const MIN_YEAR     = 1880;
+const MAX_YEAR     = 2024;
+const DEFAULT_START = 2015;
+const DEFAULT_END   = 2024;
+const yearCache = new Map(); // year (number) -> raw file text
 let tagSets  = {};
 let nameData = {}; // name -> { gender, usages } from Behind the Name API
 
-async function loadAll() {
-  const nameMap = new Map(); // name -> { m: 0, f: 0, years: Set }
+async function loadRange(startYear, endYear) {
+  const nameMap = new Map(); // name -> { m: 0, f: 0 }
 
-  for (const year of YEARS) {
-    let text;
-    try {
-      const res = await fetch(`ssa-data/yob${year}.txt`);
-      if (!res.ok) throw new Error(res.status);
-      text = await res.text();
-    } catch(e) {
-      console.warn(`Could not load ssa-data/yob${year}.txt:`, e);
-      continue;
+  for (let year = startYear; year <= endYear; year++) {
+    let text = yearCache.get(year);
+    if (!text) {
+      try {
+        const res = await fetch(`ssa-data/yob${year}.txt`);
+        if (!res.ok) throw new Error(res.status);
+        text = await res.text();
+        yearCache.set(year, text);
+      } catch(e) {
+        console.warn(`Could not load ssa-data/yob${year}.txt:`, e);
+        continue;
+      }
     }
     for (const line of text.trim().split('\n')) {
       const [name, gender, countStr] = line.split(',');
       if (!name) continue;
       const count = parseInt(countStr, 10);
       if (isNaN(count)) continue;
-      if (!nameMap.has(name)) nameMap.set(name, { m: 0, f: 0, years: new Set() });
+      if (!nameMap.has(name)) nameMap.set(name, { m: 0, f: 0 });
       const entry = nameMap.get(name);
       if (gender === 'M') entry.m += count;
       else if (gender === 'F') entry.f += count;
-      entry.years.add(year);
     }
   }
 
-  // Convert to array
   const names = [];
   for (const [name, { m, f }] of nameMap) {
     const total = m + f;
