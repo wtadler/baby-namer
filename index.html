@@ -141,7 +141,7 @@
 
   /* Gradient threshold slider */
   .thresh-slider::before {
-    background: linear-gradient(to right, #ec4899 0%, #d1d5db 10%, #d1d5db 90%, #3b82f6 100%);
+    background: linear-gradient(to right, #ec4899 0%, #d1d5db 20%, #d1d5db 80%, #3b82f6 100%);
   }
   .thresh-slider .dual-fill { display: none; }
   .thresh-slider input[type=range]:first-of-type::-webkit-slider-thumb { border-color: #ec4899; }
@@ -209,33 +209,41 @@
   .ctrl input[type=text]:focus { border-color: #3b82f6; }
   .ctrl input[type=text].invalid { border-color: #f87171; background: #fef2f2; }
 
-  /* Favorites */
-  .fav-filter-btn {
-    background: none;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    color: #666;
-    white-space: nowrap;
-  }
-  .fav-filter-btn.active {
-    border-color: #ec4899;
-    color: #ec4899;
-    background: #fdf2f8;
-  }
-  .controls.favorites-active .ctrl:not(.fav-ctrl) {
+  .controls.favorites-active .ctrl {
     opacity: 0.35;
     pointer-events: none;
   }
 
   .results-info {
-    padding: 12px 32px;
+    padding: 10px 32px;
     font-size: 0.8rem;
     color: #888;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
+  #resultsCount { font-weight: 500; color: #555; }
+  .fav-info { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  #favCount { font-size: 0.78rem; color: #aaa; }
+
+  /* iOS-style toggle */
+  .ios-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+  .ios-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .ios-track {
+    display: inline-block; width: 36px; height: 20px;
+    background: #ccc; border-radius: 10px;
+    position: relative; transition: background 0.2s; flex-shrink: 0;
+  }
+  .ios-thumb {
+    position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; background: #fff;
+    border-radius: 50%; transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .ios-toggle input:checked + .ios-track { background: #ec4899; }
+  .ios-toggle input:checked + .ios-track .ios-thumb { transform: translateX(16px); }
+  .ios-toggle-text { font-size: 0.8rem; color: #555; }
 
   .table-wrap {
     flex: 1;
@@ -256,6 +264,7 @@
 
   thead tr { background: #f0ede8; }
   thead th { position: sticky; top: 0; z-index: 2; background: #f0ede8; }
+  thead th:not(:last-child) { border-right: 1px solid #ddd8d1; }
   th {
     padding: 10px 14px;
     text-align: left;
@@ -316,17 +325,15 @@
   .bar-track {
     flex: 1;
     height: 4px;
-    background: linear-gradient(to right, #ec4899 0%, #d1d5db 10%, #d1d5db 90%, #3b82f6 100%);
+    background: #e8e4df;
     border-radius: 2px;
     position: relative;
   }
   .bar-dot {
     position: absolute;
     top: 50%;
-    width: 10px; height: 10px;
+    width: 9px; height: 9px;
     border-radius: 50%;
-    background: #fff;
-    border: 2px solid rgba(0,0,0,0.25);
     transform: translate(-50%, -50%);
     transition: left 0.2s;
   }
@@ -445,13 +452,8 @@
 
 <div class="controls">
   <div class="ctrl">
-    <span class="ctrl-label">% Assigned Male <span class="col-tip-icon" data-tip="threshold">?</span></span>
-    <div class="dual-slider thresh-slider">
-      <div class="dual-fill" id="dualFill"></div>
-      <input type="range" id="threshMin" min="0" max="100" value="10" step="1">
-      <input type="range" id="threshMax" min="0" max="100" value="90" step="1">
-    </div>
-    <div class="threshold-desc" id="threshDesc">Showing names that are 10%–90% male</div>
+    <span class="ctrl-label">Search (regex allowed)</span>
+    <input type="text" id="regexBox" placeholder="name…" spellcheck="false">
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Letters</span>
@@ -467,10 +469,6 @@
     </div>
   </div>
   <div class="ctrl">
-    <span class="ctrl-label">Search (regex allowed)</span>
-    <input type="text" id="regexBox" placeholder="name…" spellcheck="false">
-  </div>
-  <div class="ctrl">
     <span class="ctrl-label">Usage</span>
     <input type="text" id="usageBox" placeholder="e.g. Hebrew, Biblical…" spellcheck="false">
   </div>
@@ -478,13 +476,28 @@
     <span class="ctrl-label">Tags</span>
     <div class="tag-checks" id="tagChecks"></div>
   </div>
-  <div class="ctrl fav-ctrl">
-    <span class="ctrl-label">Favorites</span>
-    <button id="favFilterBtn" class="fav-filter-btn">♥ Show favorites</button>
+  <div class="ctrl">
+    <span class="ctrl-label">% Assigned Male <span class="col-tip-icon" data-tip="threshold">?</span></span>
+    <div class="dual-slider thresh-slider">
+      <div class="dual-fill" id="dualFill"></div>
+      <input type="range" id="threshMin" min="0" max="100" value="10" step="1">
+      <input type="range" id="threshMax" min="0" max="100" value="90" step="1">
+    </div>
+    <div class="threshold-desc" id="threshDesc">Showing names that are 10%–90% male</div>
   </div>
 </div>
 
-<div class="results-info" id="resultsInfo"></div>
+<div class="results-info" id="resultsInfo">
+  <span id="resultsCount"></span>
+  <div class="fav-info">
+    <span id="favCount"></span>
+    <label class="ios-toggle">
+      <input type="checkbox" id="favToggle">
+      <span class="ios-track"><span class="ios-thumb"></span></span>
+      <span class="ios-toggle-text">Favorites only</span>
+    </label>
+  </div>
+</div>
 
 <div class="table-wrap">
   <div class="loading" id="loading">Loading name data…</div>
@@ -650,7 +663,7 @@ function renderTable() {
     return 0;
   });
 
-  document.getElementById('resultsInfo').textContent = `${filtered.length.toLocaleString()} names`;
+  document.getElementById('resultsCount').textContent = `${filtered.length.toLocaleString()} names`;
 
   const rows = [];
   const limit = 500;
@@ -681,7 +694,7 @@ function renderTable() {
         <td class="td-pct">
           <div class="bar-cell">
             <div class="bar-track">
-              <div class="bar-dot" style="left:${n.pctM.toFixed(1)}%"></div>
+              <div class="bar-dot" style="left:${n.pctM.toFixed(1)}%;background:${dotColor(n.pctM)}"></div>
             </div>
             <span class="pct-label">${pctMLabel}% M</span>
           </div>
@@ -701,6 +714,22 @@ function renderTable() {
 
 function esc(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function lerpColor(a, b, t) {
+  const h = s => parseInt(s, 16);
+  return '#' + [0,2,4].map(i => Math.round(h(a.slice(i+1,i+3)) + (h(b.slice(i+1,i+3)) - h(a.slice(i+1,i+3))) * t).toString(16).padStart(2,'0')).join('');
+}
+
+function dotColor(pctM) {
+  if (pctM <= 20) return lerpColor('#ec4899', '#9ca3af', pctM / 20);
+  if (pctM >= 80) return lerpColor('#9ca3af', '#3b82f6', (pctM - 80) / 20);
+  return '#9ca3af';
+}
+
+function updateFavCount() {
+  const n = favoriteNames.size;
+  document.getElementById('favCount').textContent = n > 0 ? `${n} favorite${n === 1 ? '' : 's'} marked` : '';
 }
 
 function usageHtml(name) {
@@ -784,13 +813,12 @@ function toggleFavorite(name) {
   if (favoriteNames.has(name)) favoriteNames.delete(name);
   else favoriteNames.add(name);
   localStorage.setItem(FAVS_KEY, JSON.stringify([...favoriteNames]));
+  updateFavCount();
   renderTable();
 }
 
-document.getElementById('favFilterBtn').addEventListener('click', function() {
-  favoritesMode = !favoritesMode;
-  this.textContent = favoritesMode ? '♥ Favorites only' : '♥ Show favorites';
-  this.classList.toggle('active', favoritesMode);
+document.getElementById('favToggle').addEventListener('change', function() {
+  favoritesMode = this.checked;
   document.querySelector('.controls').classList.toggle('favorites-active', favoritesMode);
   saveSettings();
   renderTable();
@@ -1081,9 +1109,7 @@ document.getElementById('regexBox').addEventListener('input', function() {
       }
       if (saved.favoritesMode) {
         favoritesMode = true;
-        const btn = document.getElementById('favFilterBtn');
-        btn.textContent = '♥ Favorites only';
-        btn.classList.add('active');
+        document.getElementById('favToggle').checked = true;
         document.querySelector('.controls').classList.add('favorites-active');
       }
       // Restore sort header indicator
@@ -1104,6 +1130,7 @@ document.getElementById('regexBox').addEventListener('input', function() {
     updateThreshDesc();
     updateYearFill();
     updateYearLabel();
+    updateFavCount();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('nameTable').style.display = '';
     renderTable();
