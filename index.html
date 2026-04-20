@@ -19,11 +19,29 @@
     border-bottom: 1px solid #e5e0d8;
     padding: 20px 32px;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 12px;
   }
   header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
-  header span { font-size: 0.85rem; color: #888; }
+
+  .year-range-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .year-bound {
+    font-size: 0.75rem;
+    color: #888;
+    white-space: nowrap;
+  }
+  .year-label {
+    font-size: 0.85rem;
+    color: #3b82f6;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 72px;
+  }
 
   .controls {
     background: #fff;
@@ -325,7 +343,16 @@
 
 <header>
   <h1>Baby Name Explorer</h1>
-  <span>SSA data 2015–2024</span>
+  <div class="year-range-ctrl">
+    <span class="year-bound">1880</span>
+    <div class="dual-slider" id="yearSlider">
+      <div class="dual-fill" id="yearFill"></div>
+      <input type="range" id="yearStart" min="1880" max="2024" value="2015" step="1">
+      <input type="range" id="yearEnd"   min="1880" max="2024" value="2024" step="1">
+    </div>
+    <span class="year-bound">2024</span>
+    <span class="year-label" id="yearLabel">2015–2024</span>
+  </div>
 </header>
 
 <div class="controls">
@@ -388,11 +415,11 @@ async function loadAll() {
   for (const year of YEARS) {
     let text;
     try {
-      const res = await fetch(`yob${year}.txt`);
+      const res = await fetch(`ssa-data/yob${year}.txt`);
       if (!res.ok) throw new Error(res.status);
       text = await res.text();
     } catch(e) {
-      console.warn(`Could not load yob${year}.txt:`, e);
+      console.warn(`Could not load ssa-data/yob${year}.txt:`, e);
       continue;
     }
     for (const line of text.trim().split('\n')) {
