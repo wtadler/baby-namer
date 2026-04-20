@@ -141,7 +141,7 @@
 
   /* Gradient threshold slider */
   .thresh-slider::before {
-    background: linear-gradient(to right, #ec4899 0%, #d1d5db 50%, #3b82f6 100%);
+    background: linear-gradient(to right, #ec4899 0%, #d1d5db 10%, #d1d5db 90%, #3b82f6 100%);
   }
   .thresh-slider .dual-fill { display: none; }
   .thresh-slider input[type=range]:first-of-type::-webkit-slider-thumb { border-color: #ec4899; }
@@ -151,13 +151,23 @@
 
   /* Column / control info icons */
   .col-tip-icon {
-    font-size: 0.7rem;
-    color: #aaa;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #999;
+    background: #eee;
+    border-radius: 50%;
     cursor: help;
-    margin-left: 3px;
+    margin-left: 4px;
     vertical-align: middle;
+    line-height: 1;
+    flex-shrink: 0;
   }
-  .col-tip-icon:hover { color: #666; }
+  .col-tip-icon:hover { color: #555; background: #ddd; }
 
   /* Letter selects */
   .letter-group {
@@ -306,7 +316,7 @@
   .bar-track {
     flex: 1;
     height: 4px;
-    background: #e8e8e8;
+    background: linear-gradient(to right, #ec4899 0%, #d1d5db 10%, #d1d5db 90%, #3b82f6 100%);
     border-radius: 2px;
     position: relative;
   }
@@ -315,6 +325,8 @@
     top: 50%;
     width: 10px; height: 10px;
     border-radius: 50%;
+    background: #fff;
+    border: 2px solid rgba(0,0,0,0.25);
     transform: translate(-50%, -50%);
     transition: left 0.2s;
   }
@@ -433,7 +445,7 @@
 
 <div class="controls">
   <div class="ctrl">
-    <span class="ctrl-label">% Assigned Male <span class="col-tip-icon" data-tip="threshold" title="">ⓘ</span></span>
+    <span class="ctrl-label">% Assigned Male <span class="col-tip-icon" data-tip="threshold">?</span></span>
     <div class="dual-slider thresh-slider">
       <div class="dual-fill" id="dualFill"></div>
       <input type="range" id="threshMin" min="0" max="100" value="10" step="1">
@@ -477,13 +489,20 @@
 <div class="table-wrap">
   <div class="loading" id="loading">Loading name data…</div>
   <table id="nameTable" style="display:none">
+    <colgroup>
+      <col style="width:48px">
+      <col>
+      <col style="width:195px">
+      <col style="width:140px">
+      <col style="width:200px">
+    </colgroup>
     <thead>
       <tr>
         <th class="td-rank"></th>
         <th data-col="name">Name <span class="sort-arrow">↕</span></th>
-        <th data-col="total" class="sorted">Popularity <span class="sort-arrow">↓</span> <span class="col-tip-icon" data-tip="popularity">ⓘ</span></th>
-        <th data-col="total">Total births <span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="total">ⓘ</span></th>
-        <th data-col="pctM">% Assigned Male <span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="pctM">ⓘ</span></th>
+        <th data-col="total" class="sorted">Popularity <span class="sort-arrow">↓</span> <span class="col-tip-icon" data-tip="popularity">?</span></th>
+        <th data-col="total">Total births <span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="total">?</span></th>
+        <th data-col="pctM">% Assigned Male <span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="pctM">?</span></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -662,7 +681,7 @@ function renderTable() {
         <td class="td-pct">
           <div class="bar-cell">
             <div class="bar-track">
-              <div class="bar-dot" style="left:${n.pctM.toFixed(1)}%;background:${dotColor(n.pctM)}"></div>
+              <div class="bar-dot" style="left:${n.pctM.toFixed(1)}%"></div>
             </div>
             <span class="pct-label">${pctMLabel}% M</span>
           </div>
@@ -679,11 +698,6 @@ function renderTable() {
   document.getElementById('tableBody').innerHTML = rows.join('');
 }
 
-function dotColor(pctM) {
-  if (pctM <= 5)  return '#f9a8d4';
-  if (pctM >= 95) return '#60a5fa';
-  return '#bbb';
-}
 
 function esc(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
