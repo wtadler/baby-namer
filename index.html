@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baby Name Explorer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f7f5f2;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #fff;
+    border-bottom: 1px solid #e5e0d8;
+    padding: 20px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+  header span { font-size: 0.85rem; color: #888; }
+
+  .controls {
+    background: #fff;
+    border-bottom: 1px solid #e5e0d8;
+    padding: 16px 32px;
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .ctrl {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ctrl-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+  }
+
+  /* Dual-handle range slider */
+  .dual-slider {
+    position: relative;
+    width: 240px;
+    height: 24px;
+  }
+  .dual-slider::before {
+    content: '';
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    left: 0; right: 0;
+    height: 4px;
+    background: #e0dbd5;
+    border-radius: 2px;
+  }
+  .dual-fill {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    height: 4px;
+    background: #3b82f6;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .dual-slider input[type=range] {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    -webkit-appearance: none;
+    background: transparent;
+    pointer-events: none;
+    margin: 0;
+    outline: none;
+  }
+  .dual-slider input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: all;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .dual-slider input[type=range]::-webkit-slider-runnable-track { background: transparent; }
+  .dual-slider input[type=range]::-moz-range-thumb {
+    pointer-events: all;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .dual-slider input[type=range]::-moz-range-track { background: transparent; }
+
+  .threshold-desc {
+    font-size: 0.8rem;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  /* Letter selects — never wrap */
+  .letter-group {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .letter-group select {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+    min-width: 80px;
+  }
+  .letter-group select:focus { border-color: #3b82f6; }
+
+  /* Search */
+  .ctrl input[type=text] {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    outline: none;
+    width: 160px;
+  }
+  .ctrl input[type=text]:focus { border-color: #3b82f6; }
+  .ctrl input[type=text].invalid { border-color: #f87171; background: #fef2f2; }
+
+  .results-info {
+    padding: 12px 32px;
+    font-size: 0.8rem;
+    color: #888;
+  }
+
+  .table-wrap {
+    padding: 0 32px 40px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  thead tr {
+    background: #f0ede8;
+  }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  th:hover { color: #3b82f6; }
+  th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+  th.sorted .sort-arrow { opacity: 1; color: #3b82f6; }
+
+  tbody tr {
+    border-top: 1px solid #f0ede8;
+    transition: background 0.08s;
+  }
+  tbody tr:hover { background: #faf9f7; }
+
+  td {
+    padding: 10px 14px;
+    font-size: 0.88rem;
+  }
+
+  .td-rank { color: #aaa; font-size: 0.8rem; width: 48px; }
+
+  .td-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+  }
+
+  .td-total {
+    font-variant-numeric: tabular-nums;
+    color: #333;
+  }
+
+  .td-pct {
+    width: 180px;
+  }
+
+  .bar-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 4px;
+    background: #e8e8e8;
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .bar-dot {
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: left 0.2s;
+  }
+
+  .pct-label {
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: #666;
+    min-width: 38px;
+    text-align: right;
+  }
+
+  .td-pop {
+    width: 160px;
+  }
+
+  .pop-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #ede8f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .pop-bar-fill {
+    height: 100%;
+    background: #a78bfa;
+    border-radius: 4px;
+    transition: width 0.2s;
+  }
+
+  .tag-checks {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .tag-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tag-check input { cursor: pointer; accent-color: #3b82f6; }
+
+  .td-name a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .td-name a:hover {
+    text-decoration: underline;
+    color: #3b82f6;
+  }
+  .name-usages {
+    font-size: 0.7rem;
+    color: #aaa;
+    font-weight: 400;
+    margin-top: 2px;
+    letter-spacing: 0;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 60px;
+    color: #888;
+    font-size: 0.95rem;
+  }
+
+  .error {
+    padding: 20px 32px;
+    background: #fef2f2;
+    color: #b91c1c;
+    border-radius: 8px;
+    margin: 20px 32px;
+    font-size: 0.88rem;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.75rem;
+    color: #888;
+    margin-left: auto;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .dot-m { background: #60a5fa; }
+  .dot-f { background: #f9a8d4; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Baby Name Explorer</h1>
+  <span>SSA data 2015–2024</span>
+</header>
+
+<div class="controls">
+  <div class="ctrl">
+    <span class="ctrl-label">Unisex threshold</span>
+    <div class="dual-slider">
+      <div class="dual-fill" id="dualFill"></div>
+      <input type="range" id="threshMin" min="0" max="100" value="10" step="1">
+      <input type="range" id="threshMax" min="0" max="100" value="90" step="1">
+    </div>
+    <div class="threshold-desc" id="threshDesc">Showing names that are 10%–90% male</div>
+  </div>
+  <div class="ctrl">
+    <span class="ctrl-label">Letters</span>
+    <div class="letter-group">
+      <select id="firstLetter"><option value="">First: any</option></select>
+      <select id="lastLetter"><option value="">Last: any</option></select>
+    </div>
+  </div>
+  <div class="ctrl">
+    <span class="ctrl-label">Search</span>
+    <input type="text" id="regexBox" placeholder="name…" spellcheck="false">
+  </div>
+  <div class="ctrl">
+    <span class="ctrl-label">Usage</span>
+    <input type="text" id="usageBox" placeholder="e.g. Hebrew, Biblical…" spellcheck="false">
+  </div>
+  <div class="ctrl">
+    <span class="ctrl-label">Tags</span>
+    <div class="tag-checks" id="tagChecks"></div>
+  </div>
+</div>
+
+<div class="results-info" id="resultsInfo"></div>
+
+<div class="table-wrap">
+  <div class="loading" id="loading">Loading name data…</div>
+  <table id="nameTable" style="display:none">
+    <thead>
+      <tr>
+        <th class="td-rank">#</th>
+        <th data-col="name">Name <span class="sort-arrow">↕</span></th>
+        <th data-col="total" class="sorted">Popularity <span class="sort-arrow">↓</span></th>
+        <th data-col="total">Total births <span class="sort-arrow">↕</span></th>
+        <th data-col="pctM">% Male <span class="sort-arrow">↕</span></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<script>
+const YEARS = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+let tagSets  = {};
+let nameData = {}; // name -> { gender, usages } from Behind the Name API
+
+async function loadAll() {
+  const nameMap = new Map(); // name -> { m: 0, f: 0, years: Set }
+
+  for (const year of YEARS) {
+    let text;
+    try {
+      const res = await fetch(`yob${year}.txt`);
+      if (!res.ok) throw new Error(res.status);
+      text = await res.text();
+    } catch(e) {
+      console.warn(`Could not load yob${year}.txt:`, e);
+      continue;
+    }
+    for (const line of text.trim().split('\n')) {
+      const [name, gender, countStr] = line.split(',');
+      if (!name) continue;
+      const count = parseInt(countStr, 10);
+      if (isNaN(count)) continue;
+      if (!nameMap.has(name)) nameMap.set(name, { m: 0, f: 0, years: new Set() });
+      const entry = nameMap.get(name);
+      if (gender === 'M') entry.m += count;
+      else if (gender === 'F') entry.f += count;
+      entry.years.add(year);
+    }
+  }
+
+  // Convert to array
+  const names = [];
+  for (const [name, { m, f }] of nameMap) {
+    const total = m + f;
+    const pctM = total > 0 ? (m / total) * 100 : 0;
+    names.push({ name, m, f, total, pctM });
+  }
+  return names;
+}
+
+let allNames = [];
+let globalMaxTotal = 1;
+let sortCol = 'total';
+let sortDir = 1; // 1 = desc (highest first), -1 = asc
+
+function getFiltered() {
+  const minPct = parseInt(document.getElementById('threshMin').value);
+  const maxPct = parseInt(document.getElementById('threshMax').value);
+  const first = document.getElementById('firstLetter').value;
+  const last  = document.getElementById('lastLetter').value;
+  const rawRegex = document.getElementById('regexBox').value.trim();
+  let re = null;
+  if (rawRegex) {
+    try { re = new RegExp(rawRegex, 'i'); } catch(e) { re = null; }
+  }
+  const checkedTags = [...document.querySelectorAll('.tag-checkbox:checked')].map(el => el.value);
+  const usageQuery  = document.getElementById('usageBox').value.trim().toLowerCase();
+
+  return allNames.filter(n => {
+    if (n.pctM < minPct || n.pctM > maxPct) return false;
+    if (first && n.name[0].toUpperCase() !== first) return false;
+    if (last  && n.name[n.name.length - 1].toUpperCase() !== last) return false;
+    if (re && !re.test(n.name)) return false;
+    if (checkedTags.length && !checkedTags.every(tag => tagSets[tag]?.has(n.name))) return false;
+    if (usageQuery) {
+      const usages = nameData[n.name]?.usages ?? [];
+      const match = usages.some(u =>
+        u.usage_full.toLowerCase().includes(usageQuery) ||
+        u.usage_code.toLowerCase().includes(usageQuery)
+      );
+      if (!match) return false;
+    }
+    return true;
+  });
+}
+
+function renderTable() {
+  const filtered = getFiltered();
+
+  // Sort — sortDir 1 = descending, -1 = ascending
+  filtered.sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (va < vb) return sortDir;    // sortDir=1 → b first → descending
+    if (va > vb) return -sortDir;
+    return 0;
+  });
+
+
+  document.getElementById('resultsInfo').textContent =
+    `${filtered.length.toLocaleString()} names`;
+
+  const tbody = document.getElementById('tableBody');
+  const rows = [];
+  const limit = 500;
+
+  for (let i = 0; i < Math.min(filtered.length, limit); i++) {
+    const n = filtered[i];
+    const pctMLabel = n.pctM.toFixed(1);
+    rows.push(`
+      <tr>
+        <td class="td-rank">${i + 1}</td>
+        <td class="td-name">
+          <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" target="_blank" rel="noopener">${esc(n.name)}</a>
+          ${usageHtml(n.name)}
+        </td>
+        <td class="td-pop">
+          <div class="bar-cell">
+            <div class="pop-bar-track">
+              <div class="pop-bar-fill" style="width:${(n.total/globalMaxTotal*100).toFixed(2)}%"></div>
+            </div>
+            <span class="pct-label">${(n.total/globalMaxTotal*100).toFixed(1)}%</span>
+          </div>
+        </td>
+        <td class="td-total">${n.total.toLocaleString()}</td>
+        <td class="td-pct">
+          <div class="bar-cell">
+            <div class="bar-track">
+              <div class="bar-dot" style="left:${n.pctM.toFixed(1)}%;background:${dotColor(n.pctM)}"></div>
+            </div>
+            <span class="pct-label">${pctMLabel}% M</span>
+          </div>
+        </td>
+      </tr>`);
+  }
+
+  if (filtered.length > limit) {
+    rows.push(`<tr><td colspan="5" style="text-align:center;padding:12px;color:#aaa;font-size:0.8rem;">
+      Showing top ${limit} of ${filtered.length.toLocaleString()} — narrow the filters to see more
+    </td></tr>`);
+  }
+
+  tbody.innerHTML = rows.join('');
+}
+
+function dotColor(pctM) {
+  if (pctM <= 5)  return '#f9a8d4'; // pink
+  if (pctM >= 95) return '#60a5fa'; // blue
+  return '#bbb';                    // gray
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function usageHtml(name) {
+  const d = nameData[name];
+  if (!d || !d.usages || !d.usages.length) return '';
+  const all = d.usages.map(u => u.usage_full);
+  // Deduplicate while preserving order
+  const seen = new Set();
+  const deduped = all.filter(u => seen.has(u) ? false : seen.add(u));
+  const shown = deduped.slice(0, 4);
+  const extra = deduped.length - shown.length;
+  const title = esc(deduped.join(' · '));
+  const text  = esc(shown.join(' · ')) + (extra > 0 ? ` <span style="color:#ccc">+${extra}</span>` : '');
+  return `<div class="name-usages" title="${title}">${text}</div>`;
+}
+
+function updateSliderFill() {
+  const min = parseInt(document.getElementById('threshMin').value);
+  const max = parseInt(document.getElementById('threshMax').value);
+  const fill = document.getElementById('dualFill');
+  fill.style.left = min + '%';
+  fill.style.width = (max - min) + '%';
+}
+
+function updateThreshDesc() {
+  const min = parseInt(document.getElementById('threshMin').value);
+  const max = parseInt(document.getElementById('threshMax').value);
+  let desc;
+  if (min === 0 && max === 100) desc = 'Showing all names';
+  else if (min === 0)           desc = `Names that are ≤${max}% male`;
+  else if (max === 100)         desc = `Names that are ≥${min}% male`;
+  else                          desc = `Names that are ${min}%–${max}% male`;
+  document.getElementById('threshDesc').textContent = desc;
+}
+
+// Sort click
+document.querySelector('thead').addEventListener('click', e => {
+  const th = e.target.closest('th[data-col]');
+  if (!th) return;
+  const col = th.dataset.col;
+  if (sortCol === col) {
+    sortDir *= -1;
+  } else {
+    sortCol = col;
+    sortDir = col === 'name' ? -1 : 1; // name: asc (-1), numbers: desc (1)
+  }
+  document.querySelectorAll('th[data-col]').forEach(t => {
+    t.classList.remove('sorted');
+    t.querySelector('.sort-arrow').textContent = '↕';
+  });
+  th.classList.add('sorted');
+  th.querySelector('.sort-arrow').textContent = sortDir === 1 ? '↓' : '↑';
+  renderTable();
+});
+
+// Dual slider
+document.getElementById('threshMin').addEventListener('input', function() {
+  const maxEl = document.getElementById('threshMax');
+  if (parseInt(this.value) > parseInt(maxEl.value)) maxEl.value = this.value;
+  updateSliderFill();
+  updateThreshDesc();
+  renderTable();
+});
+document.getElementById('threshMax').addEventListener('input', function() {
+  const minEl = document.getElementById('threshMin');
+  if (parseInt(this.value) < parseInt(minEl.value)) minEl.value = this.value;
+  updateSliderFill();
+  updateThreshDesc();
+  renderTable();
+});
+
+document.getElementById('firstLetter').addEventListener('change', renderTable);
+document.getElementById('lastLetter').addEventListener('change', renderTable);
+document.getElementById('usageBox').addEventListener('input', renderTable);
+
+document.getElementById('regexBox').addEventListener('input', function() {
+  const val = this.value.trim();
+  if (val) {
+    try { new RegExp(val); this.classList.remove('invalid'); }
+    catch(e) { this.classList.add('invalid'); }
+  } else {
+    this.classList.remove('invalid');
+  }
+  renderTable();
+});
+
+// Boot
+(async () => {
+  try {
+    // Load name data, tags, and API data in parallel
+    const [names, tagsRaw, nameDataRaw] = await Promise.all([
+      loadAll(),
+      fetch('tags.json').then(r => r.json()).catch(() => ({})),
+      fetch('namedata.json').then(r => r.json()).catch(() => ({}))
+    ]);
+    nameData = nameDataRaw;
+    allNames = names;
+    globalMaxTotal = Math.max(...allNames.map(n => n.total));
+
+    // Build tag sets and checkboxes
+    const tagLabels = { jewish: 'Jewish', water: 'Water' };
+    for (const [key, nameList] of Object.entries(tagsRaw)) {
+      tagSets[key] = new Set(nameList);
+    }
+
+    // Add tagged names missing from SSA data (total=0, pctM=50)
+    const ssnNames = new Set(allNames.map(n => n.name));
+    for (const nameList of Object.values(tagsRaw)) {
+      for (const name of nameList) {
+        if (!ssnNames.has(name)) {
+          const g = nameData[name]?.gender;
+          const pctM = g === 'm' ? 100 : g === 'f' ? 0 : 50;
+          allNames.push({ name, m: 0, f: 0, total: 0, pctM });
+          ssnNames.add(name);
+        }
+      }
+    }
+    const tagChecksEl = document.getElementById('tagChecks');
+    for (const [key, label] of Object.entries(tagLabels)) {
+      if (!tagSets[key]) continue;
+      const lbl = document.createElement('label');
+      lbl.className = 'tag-check';
+      lbl.innerHTML = `<input type="checkbox" class="tag-checkbox" value="${key}"> ${label}`;
+      lbl.querySelector('input').addEventListener('change', renderTable);
+      tagChecksEl.appendChild(lbl);
+    }
+
+    // Populate letter dropdowns from actual data
+    const firstLetters = [...new Set(allNames.map(n => n.name[0].toUpperCase()))].sort();
+    const lastLetters  = [...new Set(allNames.map(n => n.name[n.name.length-1].toUpperCase()))].sort();
+    const firstSel = document.getElementById('firstLetter');
+    const lastSel  = document.getElementById('lastLetter');
+    firstLetters.forEach(l => { const o = document.createElement('option'); o.value = l; o.textContent = `First: ${l}`; firstSel.appendChild(o); });
+    lastLetters.forEach(l =>  { const o = document.createElement('option'); o.value = l; o.textContent = `Last: ${l}`;  lastSel.appendChild(o); });
+
+    updateSliderFill();
+    updateThreshDesc();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('nameTable').style.display = '';
+    renderTable();
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      `<div class="error">Failed to load data: ${e.message}<br>Make sure you're serving this from a local web server.</div>`;
+  }
+})();
+</script>
+</body>
+</html>
