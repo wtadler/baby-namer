@@ -273,6 +273,7 @@
 
   table {
     width: 100%;
+    min-width: 0;
     table-layout: fixed;
     border-collapse: collapse;
     background: rgba(255,255,255,0.96);
@@ -528,7 +529,7 @@
     .results-info { padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
     .fav-info { margin-left: 0; }
 
-    .table-wrap { padding: 0 0 60px; }
+    .table-wrap { padding: 0 0 60px; overflow-x: hidden; }
     td, th { padding: 8px 8px; }
     #nameTable thead th:nth-child(1) { width: 36px; }
     #nameTable thead th:nth-child(3) { width: 56px; }
@@ -633,13 +634,6 @@
 <div class="table-wrap">
   <div class="loading" id="loading">Loading name data…</div>
   <table id="nameTable" style="display:none">
-    <colgroup>
-      <col style="width:48px">
-      <col>
-      <col style="width:195px">
-      <col style="width:150px">
-      <col style="width:200px">
-    </colgroup>
     <thead>
       <tr>
         <th class="td-rank"></th>
