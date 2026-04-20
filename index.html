@@ -733,7 +733,7 @@ function renderTable() {
         <td class="td-name">
           <div class="td-name-row">
             <button class="fav-btn${isFav ? ' is-fav' : ''}" data-name="${esc(n.name)}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">♥</button>
-            <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" target="_blank" rel="noopener">${esc(n.name)}${surname ? ' ' + esc(surname) : ''}</a>
+            <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" data-first-name="${esc(n.name)}" target="_blank" rel="noopener">${esc(n.name)}${surname ? ' ' + esc(surname) : ''}</a>
           </div>
           ${usageHtml(n.name)}
         </td>
@@ -892,38 +892,22 @@ const nameTooltip = document.getElementById('nameTooltip');
 let tooltipTimeout = null;
 let lastMouseEvent = null;
 
-async function fetchBTNDoc(slug) {
-  const url = `https://corsproxy.io/?${encodeURIComponent('https://www.behindthename.com/name/' + slug)}`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+async function fetchBTNDef(name) {
+  const url = `/api/name-def?name=${encodeURIComponent(name)}`;
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(5000),
+    headers: { 'Accept': 'application/json' }
+  });
   if (!res.ok) throw new Error(res.status);
-  return new DOMParser().parseFromString(await res.text(), 'text/html');
-}
-
-function extractDef(doc) {
-  const defEl = doc.querySelector('.namedef');
-  if (!defEl) return null;
-  defEl.querySelector('#expanded_links')?.remove();
-  let text = '';
-  for (const node of defEl.childNodes) {
-    if (node.nodeType === Node.TEXT_NODE) text += node.textContent;
-    else if (node.nodeName === 'P') text += '\n\n';
-    else if (['A','I','B','SPAN'].includes(node.nodeName)) text += node.textContent;
-  }
-  return text.trim().replace(/\n{3,}/g, '\n\n') || null;
+  const data = await res.json();
+  return data.text || null;
 }
 
 async function fetchNameDef(name) {
   if (nameDefCache.has(name)) return nameDefCache.get(name);
   nameDefCache.set(name, null);
   try {
-    const slug = name.toLowerCase();
-    let doc = await fetchBTNDoc(slug);
-    let text = extractDef(doc);
-    // Disambiguation: no definition but links to name-1
-    if (!text && doc.querySelector(`a[href*="/name/${slug}-1"]`)) {
-      doc = await fetchBTNDoc(slug + '-1');
-      text = extractDef(doc);
-    }
+    const text = await fetchBTNDef(name);
     nameDefCache.set(name, text);
     return text;
   } catch(e) {
@@ -953,7 +937,7 @@ document.getElementById('tableBody').addEventListener('mouseover', async e => {
   if (!nameCell) { clearTimeout(tooltipTimeout); nameTooltip.style.display = 'none'; return; }
   const nameLink = nameCell.querySelector('a');
   if (!nameLink) return;
-  const name = nameLink.textContent.trim();
+  const name = nameLink.dataset.firstName || nameLink.textContent.trim();
   clearTimeout(tooltipTimeout);
 
   // Cached and has a value — show immediately, no delay
