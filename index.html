@@ -700,13 +700,13 @@ document.getElementById('regexBox').addEventListener('input', function() {
   try {
     // Load name data, tags, and API data in parallel
     const [names, tagsRaw, nameDataRaw] = await Promise.all([
-      loadAll(),
+      loadRange(DEFAULT_START, DEFAULT_END),
       fetch('tags.json').then(r => r.json()).catch(() => ({})),
       fetch('namedata.json').then(r => r.json()).catch(() => ({}))
     ]);
     nameData = nameDataRaw;
     allNames = names;
-    globalMaxTotal = Math.max(...allNames.map(n => n.total));
+    globalMaxTotal = Math.max(...allNames.map(n => n.total), 1);
 
     // Build tag sets and checkboxes
     const tagLabels = { jewish: 'Jewish', water: 'Water' };
@@ -746,6 +746,8 @@ document.getElementById('regexBox').addEventListener('input', function() {
 
     updateSliderFill();
     updateThreshDesc();
+    updateYearFill();
+    updateYearLabel();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('nameTable').style.display = '';
     renderTable();
