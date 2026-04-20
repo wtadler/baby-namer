@@ -887,8 +887,10 @@ function showTooltip(text) {
 function positionTooltip(e) {
   const x = e.clientX + 18;
   const y = e.clientY + 18;
-  nameTooltip.style.left = Math.min(x, window.innerWidth - 340) + 'px';
-  nameTooltip.style.top  = Math.min(y, window.innerHeight - 140) + 'px';
+  const w = nameTooltip.offsetWidth  || 320;
+  const h = nameTooltip.offsetHeight || 80;
+  nameTooltip.style.left = Math.min(x, window.innerWidth  - w - 8) + 'px';
+  nameTooltip.style.top  = Math.min(y, window.innerHeight - h - 8) + 'px';
 }
 
 document.getElementById('tableBody').addEventListener('mouseover', async e => {
