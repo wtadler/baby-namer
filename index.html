@@ -12,12 +12,13 @@
     background: #f7f5f2;
     color: #1a1a1a;
     min-height: 100vh;
+    padding-bottom: 44px;
   }
 
   header {
     background: #fff;
     border-bottom: 1px solid #e5e0d8;
-    padding: 20px 32px;
+    padding: 16px 32px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -27,20 +28,26 @@
   .year-range-ctrl {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-left: auto;
   }
-  .year-bound {
-    font-size: 0.75rem;
-    color: #888;
+  .year-range-ctrl-label {
+    font-size: 0.78rem;
+    color: #666;
     white-space: nowrap;
   }
-  .year-label {
-    font-size: 0.85rem;
-    color: #3b82f6;
-    font-weight: 600;
+  .year-slider-wrap {
+    position: relative;
+    padding-bottom: 18px;
+  }
+  .year-thumb-label {
+    position: absolute;
+    bottom: 0;
+    font-size: 0.68rem;
+    color: #888;
+    transform: translateX(-50%);
     white-space: nowrap;
-    min-width: 72px;
+    pointer-events: none;
   }
 
   .controls {
@@ -128,11 +135,21 @@
     line-height: 1.4;
   }
 
-  /* Letter selects — never wrap */
+  /* Letter selects */
   .letter-group {
     display: flex;
     flex-wrap: nowrap;
     gap: 10px;
+  }
+  .letter-select-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .letter-prefix {
+    font-size: 0.85rem;
+    color: #555;
+    white-space: nowrap;
   }
   .letter-group select {
     border: 1px solid #ddd;
@@ -142,7 +159,7 @@
     background: #fff;
     outline: none;
     cursor: pointer;
-    min-width: 80px;
+    min-width: 56px;
   }
   .letter-group select:focus { border-color: #3b82f6; }
 
@@ -157,6 +174,27 @@
   }
   .ctrl input[type=text]:focus { border-color: #3b82f6; }
   .ctrl input[type=text].invalid { border-color: #f87171; background: #fef2f2; }
+
+  /* Favorites */
+  .fav-filter-btn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #666;
+    white-space: nowrap;
+  }
+  .fav-filter-btn.active {
+    border-color: #ec4899;
+    color: #ec4899;
+    background: #fdf2f8;
+  }
+  .controls.favorites-active .ctrl:not(.fav-ctrl) {
+    opacity: 0.35;
+    pointer-events: none;
+  }
 
   .results-info {
     padding: 12px 32px;
@@ -178,9 +216,7 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
 
-  thead tr {
-    background: #f0ede8;
-  }
+  thead tr { background: #f0ede8; }
   th {
     padding: 10px 14px;
     text-align: left;
@@ -203,10 +239,7 @@
   }
   tbody tr:hover { background: #faf9f7; }
 
-  td {
-    padding: 10px 14px;
-    font-size: 0.88rem;
-  }
+  td { padding: 10px 14px; font-size: 0.88rem; }
 
   .td-rank { color: #aaa; font-size: 0.8rem; width: 48px; }
 
@@ -215,21 +248,30 @@
     font-size: 0.95rem;
     letter-spacing: -0.01em;
   }
-
-  .td-total {
-    font-variant-numeric: tabular-nums;
-    color: #333;
-  }
-
-  .td-pct {
-    width: 180px;
-  }
-
-  .bar-cell {
+  .td-name-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
   }
+
+  .fav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #ddd;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.1s;
+  }
+  .fav-btn:hover { color: #ec4899; }
+  .fav-btn.is-fav { color: #ec4899; }
+
+  .td-total { font-variant-numeric: tabular-nums; color: #333; }
+  .td-pct { width: 180px; }
+
+  .bar-cell { display: flex; align-items: center; gap: 8px; }
 
   .bar-track {
     flex: 1;
@@ -238,17 +280,14 @@
     border-radius: 2px;
     position: relative;
   }
-
   .bar-dot {
     position: absolute;
     top: 50%;
-    width: 10px;
-    height: 10px;
+    width: 10px; height: 10px;
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: left 0.2s;
   }
-
   .pct-label {
     font-size: 0.75rem;
     font-variant-numeric: tabular-nums;
@@ -256,11 +295,7 @@
     min-width: 38px;
     text-align: right;
   }
-
-  .td-pop {
-    width: 160px;
-  }
-
+  .td-pop { width: 160px; }
   .pop-bar-track {
     flex: 1;
     height: 8px;
@@ -268,7 +303,6 @@
     border-radius: 4px;
     overflow: hidden;
   }
-
   .pop-bar-fill {
     height: 100%;
     background: #a78bfa;
@@ -276,11 +310,7 @@
     transition: width 0.2s;
   }
 
-  .tag-checks {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
+  .tag-checks { display: flex; flex-direction: column; gap: 5px; }
   .tag-check {
     display: flex;
     align-items: center;
@@ -291,29 +321,22 @@
   }
   .tag-check input { cursor: pointer; accent-color: #3b82f6; }
 
-  .td-name a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .td-name a:hover {
-    text-decoration: underline;
-    color: #3b82f6;
-  }
+  .td-name a { color: inherit; text-decoration: none; }
+  .td-name a:hover { text-decoration: underline; color: #3b82f6; }
+
   .name-usages {
     font-size: 0.7rem;
     color: #aaa;
     font-weight: 400;
     margin-top: 2px;
     letter-spacing: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
   }
 
-  .loading {
-    text-align: center;
-    padding: 60px;
-    color: #888;
-    font-size: 0.95rem;
-  }
-
+  .loading { text-align: center; padding: 60px; color: #888; font-size: 0.95rem; }
   .error {
     padding: 20px 32px;
     background: #fef2f2;
@@ -323,20 +346,40 @@
     font-size: 0.88rem;
   }
 
-  .legend {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 0.75rem;
-    color: #888;
-    margin-left: auto;
+  /* Name definition tooltip */
+  .name-tooltip {
+    position: fixed;
+    background: #fff;
+    border: 1px solid #e5e0d8;
+    border-radius: 8px;
+    padding: 10px 14px;
+    max-width: 320px;
+    font-size: 0.82rem;
+    color: #333;
+    line-height: 1.5;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 1000;
+    pointer-events: none;
+    font-weight: 400;
+    letter-spacing: 0;
   }
-  .legend-item { display: flex; align-items: center; gap: 5px; }
-  .legend-dot {
-    width: 10px; height: 10px; border-radius: 50%;
+
+  /* Footer */
+  .site-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-top: 1px solid #e5e0d8;
+    padding: 8px 32px;
+    font-size: 0.73rem;
+    color: #aaa;
+    text-align: center;
+    z-index: 100;
   }
-  .dot-m { background: #60a5fa; }
-  .dot-f { background: #f9a8d4; }
+  .site-footer a { color: #aaa; text-decoration: none; }
+  .site-footer a:hover { color: #666; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -344,14 +387,16 @@
 <header>
   <h1>Baby Name Explorer</h1>
   <div class="year-range-ctrl">
-    <span class="year-bound">1880</span>
-    <div class="dual-slider">
-      <div class="dual-fill" id="yearFill"></div>
-      <input type="range" id="yearStart" min="1880" max="2024" value="2015" step="1">
-      <input type="range" id="yearEnd"   min="1880" max="2024" value="2024" step="1">
+    <span class="year-range-ctrl-label">Using data from year range:</span>
+    <div class="year-slider-wrap">
+      <div class="dual-slider" style="width:160px">
+        <div class="dual-fill" id="yearFill"></div>
+        <input type="range" id="yearStart" min="1880" max="2024" value="2015" step="1">
+        <input type="range" id="yearEnd"   min="1880" max="2024" value="2024" step="1">
+      </div>
+      <span class="year-thumb-label" id="yearStartLabel">2015</span>
+      <span class="year-thumb-label" id="yearEndLabel">2024</span>
     </div>
-    <span class="year-bound">2024</span>
-    <span class="year-label" id="yearLabel">2015–2024</span>
   </div>
 </header>
 
@@ -368,12 +413,18 @@
   <div class="ctrl">
     <span class="ctrl-label">Letters</span>
     <div class="letter-group">
-      <select id="firstLetter"><option value="">First: any</option></select>
-      <select id="lastLetter"><option value="">Last: any</option></select>
+      <div class="letter-select-wrap">
+        <span class="letter-prefix">First:</span>
+        <select id="firstLetter"><option value="">any</option></select>
+      </div>
+      <div class="letter-select-wrap">
+        <span class="letter-prefix">Last:</span>
+        <select id="lastLetter"><option value="">any</option></select>
+      </div>
     </div>
   </div>
   <div class="ctrl">
-    <span class="ctrl-label">Search</span>
+    <span class="ctrl-label">Search (regex allowed)</span>
     <input type="text" id="regexBox" placeholder="name…" spellcheck="false">
   </div>
   <div class="ctrl">
@@ -384,6 +435,10 @@
     <span class="ctrl-label">Tags</span>
     <div class="tag-checks" id="tagChecks"></div>
   </div>
+  <div class="ctrl fav-ctrl">
+    <span class="ctrl-label">Favorites</span>
+    <button id="favFilterBtn" class="fav-filter-btn">♡ Show favorites</button>
+  </div>
 </div>
 
 <div class="results-info" id="resultsInfo"></div>
@@ -393,28 +448,69 @@
   <table id="nameTable" style="display:none">
     <thead>
       <tr>
-        <th class="td-rank">#</th>
+        <th class="td-rank"></th>
         <th data-col="name">Name <span class="sort-arrow">↕</span></th>
         <th data-col="total" class="sorted">Popularity <span class="sort-arrow">↓</span></th>
         <th data-col="total">Total births <span class="sort-arrow">↕</span></th>
-        <th data-col="pctM">% Male <span class="sort-arrow">↕</span></th>
+        <th data-col="pctM">% Assigned Male <span class="sort-arrow">↕</span></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
   </table>
 </div>
 
+<div id="nameTooltip" class="name-tooltip" style="display:none"></div>
+
+<footer class="site-footer">
+  Source: <a href="https://www.ssa.gov/oact/babynames/" target="_blank" rel="noopener">Social Security Administration</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>
+</footer>
+
 <script>
-const MIN_YEAR     = 1880;
-const MAX_YEAR     = 2024;
+const MIN_YEAR      = 1880;
+const MAX_YEAR      = 2024;
 const DEFAULT_START = 2015;
 const DEFAULT_END   = 2024;
-const yearCache = new Map(); // year (number) -> raw file text
+const SETTINGS_KEY  = 'baby-namer-settings';
+const FAVS_KEY      = 'baby-namer-favs';
+
+const yearCache   = new Map(); // year (number) -> raw file text
+const nameDefCache = new Map(); // name -> definition string or null
+
 let tagSets  = {};
-let nameData = {}; // name -> { gender, usages } from Behind the Name API
+let nameData = {};
+
+let favoriteNames = new Set(JSON.parse(localStorage.getItem(FAVS_KEY) || '[]'));
+let favoritesMode = false;
+
+// ── Settings persistence ──────────────────────────────────────────────────────
+
+function saveSettings() {
+  const checkedTags = [...document.querySelectorAll('.tag-checkbox:checked')].map(el => el.value);
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+    threshMin:    document.getElementById('threshMin').value,
+    threshMax:    document.getElementById('threshMax').value,
+    firstLetter:  document.getElementById('firstLetter').value,
+    lastLetter:   document.getElementById('lastLetter').value,
+    regexBox:     document.getElementById('regexBox').value,
+    usageBox:     document.getElementById('usageBox').value,
+    tags:         checkedTags,
+    sortCol,
+    sortDir,
+    yearStart:    document.getElementById('yearStart').value,
+    yearEnd:      document.getElementById('yearEnd').value,
+    favoritesMode,
+  }));
+}
+
+function loadSavedSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'); }
+  catch(e) { return null; }
+}
+
+// ── Data loading ──────────────────────────────────────────────────────────────
 
 async function loadRange(startYear, endYear) {
-  const nameMap = new Map(); // name -> { m: 0, f: 0 }
+  const nameMap = new Map();
 
   for (let year = startYear; year <= endYear; year++) {
     let text = yearCache.get(year);
@@ -450,14 +546,22 @@ async function loadRange(startYear, endYear) {
   return names;
 }
 
+// ── State ─────────────────────────────────────────────────────────────────────
+
 let allNames = [];
 let globalMaxTotal = 1;
 let sortCol = 'total';
-let sortDir = 1; // 1 = desc (highest first), -1 = asc
+let sortDir = 1;
+
+// ── Filtering & rendering ─────────────────────────────────────────────────────
 
 function getFiltered() {
-  const minPct = parseInt(document.getElementById('threshMin').value);
-  const maxPct = parseInt(document.getElementById('threshMax').value);
+  if (favoritesMode) {
+    return allNames.filter(n => favoriteNames.has(n.name));
+  }
+
+  const minPct = parseInt(document.getElementById('threshMin').value, 10);
+  const maxPct = parseInt(document.getElementById('threshMax').value, 10);
   const first = document.getElementById('firstLetter').value;
   const last  = document.getElementById('lastLetter').value;
   const rawRegex = document.getElementById('regexBox').value.trim();
@@ -476,11 +580,10 @@ function getFiltered() {
     if (checkedTags.length && !checkedTags.every(tag => tagSets[tag]?.has(n.name))) return false;
     if (usageQuery) {
       const usages = nameData[n.name]?.usages ?? [];
-      const match = usages.some(u =>
+      if (!usages.some(u =>
         u.usage_full.toLowerCase().includes(usageQuery) ||
         u.usage_code.toLowerCase().includes(usageQuery)
-      );
-      if (!match) return false;
+      )) return false;
     }
     return true;
   });
@@ -489,31 +592,31 @@ function getFiltered() {
 function renderTable() {
   const filtered = getFiltered();
 
-  // Sort — sortDir 1 = descending, -1 = ascending
   filtered.sort((a, b) => {
     let va = a[sortCol], vb = b[sortCol];
     if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
-    if (va < vb) return sortDir;    // sortDir=1 → b first → descending
+    if (va < vb) return sortDir;
     if (va > vb) return -sortDir;
     return 0;
   });
 
+  document.getElementById('resultsInfo').textContent = `${filtered.length.toLocaleString()} names`;
 
-  document.getElementById('resultsInfo').textContent =
-    `${filtered.length.toLocaleString()} names`;
-
-  const tbody = document.getElementById('tableBody');
   const rows = [];
   const limit = 500;
 
   for (let i = 0; i < Math.min(filtered.length, limit); i++) {
     const n = filtered[i];
     const pctMLabel = n.pctM.toFixed(1);
+    const isFav = favoriteNames.has(n.name);
     rows.push(`
       <tr>
         <td class="td-rank">${i + 1}</td>
         <td class="td-name">
-          <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" target="_blank" rel="noopener">${esc(n.name)}</a>
+          <div class="td-name-row">
+            <button class="fav-btn${isFav ? ' is-fav' : ''}" data-name="${esc(n.name)}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${isFav ? '♥' : '♡'}</button>
+            <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" target="_blank" rel="noopener">${esc(n.name)}</a>
+          </div>
           ${usageHtml(n.name)}
         </td>
         <td class="td-pop">
@@ -542,44 +645,41 @@ function renderTable() {
     </td></tr>`);
   }
 
-  tbody.innerHTML = rows.join('');
+  document.getElementById('tableBody').innerHTML = rows.join('');
 }
 
 function dotColor(pctM) {
-  if (pctM <= 5)  return '#f9a8d4'; // pink
-  if (pctM >= 95) return '#60a5fa'; // blue
-  return '#bbb';                    // gray
+  if (pctM <= 5)  return '#f9a8d4';
+  if (pctM >= 95) return '#60a5fa';
+  return '#bbb';
 }
 
 function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function usageHtml(name) {
   const d = nameData[name];
   if (!d || !d.usages || !d.usages.length) return '';
-  const all = d.usages.map(u => u.usage_full);
-  // Deduplicate while preserving order
   const seen = new Set();
-  const deduped = all.filter(u => seen.has(u) ? false : seen.add(u));
-  const shown = deduped.slice(0, 4);
-  const extra = deduped.length - shown.length;
-  const title = esc(deduped.join(' · '));
-  const text  = esc(shown.join(' · ')) + (extra > 0 ? ` <span style="color:#ccc">+${extra}</span>` : '');
-  return `<div class="name-usages" title="${title}">${text}</div>`;
+  const deduped = d.usages.map(u => u.usage_full).filter(u => seen.has(u) ? false : seen.add(u));
+  const text = esc(deduped.join(' · '));
+  return `<div class="name-usages" title="${text}">${text}</div>`;
 }
 
+// ── Slider UI ─────────────────────────────────────────────────────────────────
+
 function updateSliderFill() {
-  const min = parseInt(document.getElementById('threshMin').value);
-  const max = parseInt(document.getElementById('threshMax').value);
+  const min = parseInt(document.getElementById('threshMin').value, 10);
+  const max = parseInt(document.getElementById('threshMax').value, 10);
   const fill = document.getElementById('dualFill');
   fill.style.left = min + '%';
   fill.style.width = (max - min) + '%';
 }
 
 function updateThreshDesc() {
-  const min = parseInt(document.getElementById('threshMin').value);
-  const max = parseInt(document.getElementById('threshMax').value);
+  const min = parseInt(document.getElementById('threshMin').value, 10);
+  const max = parseInt(document.getElementById('threshMax').value, 10);
   let desc;
   if (min === 0 && max === 100) desc = 'Showing all names';
   else if (min === 0)           desc = `Names that are ≤${max}% male`;
@@ -589,8 +689,8 @@ function updateThreshDesc() {
 }
 
 function updateYearFill() {
-  const start = parseInt(document.getElementById('yearStart').value);
-  const end   = parseInt(document.getElementById('yearEnd').value);
+  const start = parseInt(document.getElementById('yearStart').value, 10);
+  const end   = parseInt(document.getElementById('yearEnd').value, 10);
   const span  = MAX_YEAR - MIN_YEAR;
   const fill  = document.getElementById('yearFill');
   fill.style.left  = ((start - MIN_YEAR) / span * 100) + '%';
@@ -598,9 +698,15 @@ function updateYearFill() {
 }
 
 function updateYearLabel() {
-  const start = parseInt(document.getElementById('yearStart').value);
-  const end   = parseInt(document.getElementById('yearEnd').value);
-  document.getElementById('yearLabel').textContent = `${start}–${end}`;
+  const start = parseInt(document.getElementById('yearStart').value, 10);
+  const end   = parseInt(document.getElementById('yearEnd').value, 10);
+  const span  = MAX_YEAR - MIN_YEAR;
+  const startLbl = document.getElementById('yearStartLabel');
+  const endLbl   = document.getElementById('yearEndLabel');
+  startLbl.textContent = start;
+  startLbl.style.left  = ((start - MIN_YEAR) / span * 100) + '%';
+  endLbl.textContent = end;
+  endLbl.style.left  = ((end - MIN_YEAR) / span * 100) + '%';
 }
 
 let yearDebounce = null;
@@ -611,12 +717,11 @@ async function onYearChange() {
   clearTimeout(yearDebounce);
   yearDebounce = setTimeout(async () => {
     const seq   = ++yearLoadSeq;
-    const start = parseInt(document.getElementById('yearStart').value);
-    const end   = parseInt(document.getElementById('yearEnd').value);
+    const start = parseInt(document.getElementById('yearStart').value, 10);
+    const end   = parseInt(document.getElementById('yearEnd').value, 10);
     const names = await loadRange(start, end);
     if (seq !== yearLoadSeq) return;
     allNames = names;
-    // Re-add tagged names missing from SSA data for this range
     const ssnNames = new Set(allNames.map(n => n.name));
     for (const nameList of Object.values(tagSets)) {
       for (const name of nameList) {
@@ -629,11 +734,102 @@ async function onYearChange() {
       }
     }
     globalMaxTotal = Math.max(...allNames.map(n => n.total), 1);
+    saveSettings();
     renderTable();
   }, 300);
 }
 
-// Sort click
+// ── Favorites ─────────────────────────────────────────────────────────────────
+
+function toggleFavorite(name) {
+  if (favoriteNames.has(name)) favoriteNames.delete(name);
+  else favoriteNames.add(name);
+  localStorage.setItem(FAVS_KEY, JSON.stringify([...favoriteNames]));
+  renderTable();
+}
+
+document.getElementById('favFilterBtn').addEventListener('click', function() {
+  favoritesMode = !favoritesMode;
+  this.textContent = favoritesMode ? '♥ Favorites only' : '♡ Show favorites';
+  this.classList.toggle('active', favoritesMode);
+  document.querySelector('.controls').classList.toggle('favorites-active', favoritesMode);
+  saveSettings();
+  renderTable();
+});
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.fav-btn');
+  if (!btn) return;
+  e.preventDefault();
+  toggleFavorite(btn.dataset.name);
+});
+
+// ── Name definition tooltip ───────────────────────────────────────────────────
+
+const nameTooltip = document.getElementById('nameTooltip');
+let tooltipTimeout = null;
+
+async function fetchNameDef(name) {
+  if (nameDefCache.has(name)) return nameDefCache.get(name);
+  nameDefCache.set(name, null);
+  try {
+    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.behindthename.com/name/' + name.toLowerCase())}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const doc = new DOMParser().parseFromString(data.contents, 'text/html');
+    const defEl = doc.querySelector('.namedef');
+    const text = defEl ? defEl.textContent.trim() : null;
+    nameDefCache.set(name, text);
+    return text;
+  } catch(e) {
+    return null;
+  }
+}
+
+function positionTooltip(e) {
+  const x = e.clientX + 18;
+  const y = e.clientY + 18;
+  nameTooltip.style.left = Math.min(x, window.innerWidth - 340) + 'px';
+  nameTooltip.style.top  = Math.min(y, window.innerHeight - 140) + 'px';
+}
+
+document.getElementById('tableBody').addEventListener('mouseover', async e => {
+  const nameCell = e.target.closest('.td-name');
+  if (!nameCell) { clearTimeout(tooltipTimeout); return; }
+  const nameLink = nameCell.querySelector('a');
+  if (!nameLink) return;
+  const name = nameLink.textContent.trim();
+
+  clearTimeout(tooltipTimeout);
+  tooltipTimeout = setTimeout(async () => {
+    if (nameDefCache.has(name) && nameDefCache.get(name)) {
+      nameTooltip.textContent = nameDefCache.get(name);
+      nameTooltip.style.display = 'block';
+      return;
+    }
+    nameTooltip.textContent = 'Loading…';
+    nameTooltip.style.display = 'block';
+    const def = await fetchNameDef(name);
+    if (def && nameTooltip.style.display !== 'none') {
+      nameTooltip.textContent = def;
+    } else {
+      nameTooltip.style.display = 'none';
+    }
+  }, 400);
+});
+
+document.getElementById('tableBody').addEventListener('mousemove', e => {
+  if (nameTooltip.style.display !== 'none') positionTooltip(e);
+});
+
+document.getElementById('tableBody').addEventListener('mouseleave', () => {
+  clearTimeout(tooltipTimeout);
+  nameTooltip.style.display = 'none';
+});
+
+// ── Sort ──────────────────────────────────────────────────────────────────────
+
 document.querySelector('thead').addEventListener('click', e => {
   const th = e.target.closest('th[data-col]');
   if (!th) return;
@@ -642,7 +838,7 @@ document.querySelector('thead').addEventListener('click', e => {
     sortDir *= -1;
   } else {
     sortCol = col;
-    sortDir = col === 'name' ? -1 : 1; // name: asc (-1), numbers: desc (1)
+    sortDir = col === 'name' ? -1 : 1;
   }
   document.querySelectorAll('th[data-col]').forEach(t => {
     t.classList.remove('sorted');
@@ -650,39 +846,43 @@ document.querySelector('thead').addEventListener('click', e => {
   });
   th.classList.add('sorted');
   th.querySelector('.sort-arrow').textContent = sortDir === 1 ? '↓' : '↑';
+  saveSettings();
   renderTable();
 });
 
-// Dual slider
+// ── Event wiring ──────────────────────────────────────────────────────────────
+
 document.getElementById('threshMin').addEventListener('input', function() {
   const maxEl = document.getElementById('threshMax');
-  if (parseInt(this.value) > parseInt(maxEl.value)) maxEl.value = this.value;
+  if (parseInt(this.value, 10) > parseInt(maxEl.value, 10)) maxEl.value = this.value;
   updateSliderFill();
   updateThreshDesc();
+  saveSettings();
   renderTable();
 });
 document.getElementById('threshMax').addEventListener('input', function() {
   const minEl = document.getElementById('threshMin');
-  if (parseInt(this.value) < parseInt(minEl.value)) minEl.value = this.value;
+  if (parseInt(this.value, 10) < parseInt(minEl.value, 10)) minEl.value = this.value;
   updateSliderFill();
   updateThreshDesc();
+  saveSettings();
   renderTable();
 });
 
 document.getElementById('yearStart').addEventListener('input', function() {
   const endEl = document.getElementById('yearEnd');
-  if (parseInt(this.value) > parseInt(endEl.value)) endEl.value = this.value;
+  if (parseInt(this.value, 10) > parseInt(endEl.value, 10)) endEl.value = this.value;
   onYearChange();
 });
 document.getElementById('yearEnd').addEventListener('input', function() {
   const startEl = document.getElementById('yearStart');
-  if (parseInt(this.value) < parseInt(startEl.value)) startEl.value = this.value;
+  if (parseInt(this.value, 10) < parseInt(startEl.value, 10)) startEl.value = this.value;
   onYearChange();
 });
 
-document.getElementById('firstLetter').addEventListener('change', renderTable);
-document.getElementById('lastLetter').addEventListener('change', renderTable);
-document.getElementById('usageBox').addEventListener('input', renderTable);
+document.getElementById('firstLetter').addEventListener('change', () => { saveSettings(); renderTable(); });
+document.getElementById('lastLetter').addEventListener('change',  () => { saveSettings(); renderTable(); });
+document.getElementById('usageBox').addEventListener('input',     () => { saveSettings(); renderTable(); });
 
 document.getElementById('regexBox').addEventListener('input', function() {
   const val = this.value.trim();
@@ -692,15 +892,29 @@ document.getElementById('regexBox').addEventListener('input', function() {
   } else {
     this.classList.remove('invalid');
   }
+  saveSettings();
   renderTable();
 });
 
-// Boot
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
 (async () => {
   try {
-    // Load name data, tags, and API data in parallel
+    // Restore year range from saved settings before initial load
+    const saved = loadSavedSettings();
+    const initStart = saved?.yearStart ? parseInt(saved.yearStart, 10) : DEFAULT_START;
+    const initEnd   = saved?.yearEnd   ? parseInt(saved.yearEnd,   10) : DEFAULT_END;
+    document.getElementById('yearStart').value = initStart;
+    document.getElementById('yearEnd').value   = initEnd;
+
+    // Restore sort state
+    if (saved?.sortCol) {
+      sortCol = saved.sortCol;
+      sortDir = saved.sortDir ?? 1;
+    }
+
     const [names, tagsRaw, nameDataRaw] = await Promise.all([
-      loadRange(DEFAULT_START, DEFAULT_END),
+      loadRange(initStart, initEnd),
       fetch('tags.json').then(r => r.json()).catch(() => ({})),
       fetch('namedata.json').then(r => r.json()).catch(() => ({}))
     ]);
@@ -708,13 +922,11 @@ document.getElementById('regexBox').addEventListener('input', function() {
     allNames = names;
     globalMaxTotal = Math.max(...allNames.map(n => n.total), 1);
 
-    // Build tag sets and checkboxes
     const tagLabels = { jewish: 'Jewish', water: 'Water' };
     for (const [key, nameList] of Object.entries(tagsRaw)) {
       tagSets[key] = new Set(nameList);
     }
 
-    // Add tagged names missing from SSA data (total=0, pctM=50)
     const ssnNames = new Set(allNames.map(n => n.name));
     for (const nameList of Object.values(tagsRaw)) {
       for (const name of nameList) {
@@ -726,23 +938,60 @@ document.getElementById('regexBox').addEventListener('input', function() {
         }
       }
     }
+
+    // Build tag checkboxes
     const tagChecksEl = document.getElementById('tagChecks');
     for (const [key, label] of Object.entries(tagLabels)) {
       if (!tagSets[key]) continue;
       const lbl = document.createElement('label');
       lbl.className = 'tag-check';
       lbl.innerHTML = `<input type="checkbox" class="tag-checkbox" value="${key}"> ${label}`;
-      lbl.querySelector('input').addEventListener('change', renderTable);
+      lbl.querySelector('input').addEventListener('change', () => { saveSettings(); renderTable(); });
       tagChecksEl.appendChild(lbl);
     }
 
-    // Populate letter dropdowns from actual data
+    // Populate letter dropdowns
     const firstLetters = [...new Set(allNames.map(n => n.name[0].toUpperCase()))].sort();
     const lastLetters  = [...new Set(allNames.map(n => n.name[n.name.length-1].toUpperCase()))].sort();
     const firstSel = document.getElementById('firstLetter');
     const lastSel  = document.getElementById('lastLetter');
-    firstLetters.forEach(l => { const o = document.createElement('option'); o.value = l; o.textContent = `First: ${l}`; firstSel.appendChild(o); });
-    lastLetters.forEach(l =>  { const o = document.createElement('option'); o.value = l; o.textContent = `Last: ${l}`;  lastSel.appendChild(o); });
+    firstLetters.forEach(l => { const o = document.createElement('option'); o.value = l; o.textContent = l; firstSel.appendChild(o); });
+    lastLetters.forEach(l =>  { const o = document.createElement('option'); o.value = l; o.textContent = l; lastSel.appendChild(o); });
+
+    // Apply saved settings
+    if (saved) {
+      if (saved.threshMin !== undefined) document.getElementById('threshMin').value = saved.threshMin;
+      if (saved.threshMax !== undefined) document.getElementById('threshMax').value = saved.threshMax;
+      if (saved.firstLetter) document.getElementById('firstLetter').value = saved.firstLetter;
+      if (saved.lastLetter)  document.getElementById('lastLetter').value  = saved.lastLetter;
+      if (saved.regexBox)    document.getElementById('regexBox').value    = saved.regexBox;
+      if (saved.usageBox)    document.getElementById('usageBox').value    = saved.usageBox;
+      if (saved.tags?.length) {
+        saved.tags.forEach(tag => {
+          const cb = document.querySelector(`.tag-checkbox[value="${tag}"]`);
+          if (cb) cb.checked = true;
+        });
+      }
+      if (saved.favoritesMode) {
+        favoritesMode = true;
+        const btn = document.getElementById('favFilterBtn');
+        btn.textContent = '♥ Favorites only';
+        btn.classList.add('active');
+        document.querySelector('.controls').classList.add('favorites-active');
+      }
+      // Restore sort header indicator
+      if (saved.sortCol) {
+        document.querySelectorAll('th[data-col]').forEach(t => {
+          t.classList.remove('sorted');
+          t.querySelector('.sort-arrow').textContent = '↕';
+        });
+        const sortedTh = document.querySelector(`th[data-col="${saved.sortCol}"]`);
+        if (sortedTh) {
+          sortedTh.classList.add('sorted');
+          sortedTh.querySelector('.sort-arrow').textContent = (saved.sortDir ?? 1) === 1 ? '↓' : '↑';
+        }
+      }
+    }
 
     updateSliderFill();
     updateThreshDesc();

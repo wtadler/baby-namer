@@ -24,7 +24,7 @@ OUT_FILE = "namedata.json"
 # ── 1. Aggregate SSA counts ───────────────────────────────────────────────────
 counts = defaultdict(lambda: {"m": 0, "f": 0})
 for year in range(2015, 2025):
-    path = f"yob{year}.txt"
+    path = f"ssa-data/yob{year}.txt"
     if not os.path.exists(path):
         continue
     with open(path) as fh:
