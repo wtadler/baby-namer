@@ -604,14 +604,17 @@ function updateYearLabel() {
 }
 
 let yearDebounce = null;
+let yearLoadSeq  = 0;
 async function onYearChange() {
   updateYearFill();
   updateYearLabel();
   clearTimeout(yearDebounce);
   yearDebounce = setTimeout(async () => {
+    const seq   = ++yearLoadSeq;
     const start = parseInt(document.getElementById('yearStart').value);
     const end   = parseInt(document.getElementById('yearEnd').value);
     const names = await loadRange(start, end);
+    if (seq !== yearLoadSeq) return;
     allNames = names;
     // Re-add tagged names missing from SSA data for this range
     const ssnNames = new Set(allNames.map(n => n.name));
