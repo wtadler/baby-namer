@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Baby Name Explorer</title>
+<title>Baby Namer</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -431,12 +431,55 @@
   }
   .site-footer a { color: #aaa; text-decoration: none; }
   .site-footer a:hover { color: #666; text-decoration: underline; }
+
+  /* ── Mobile ─────────────────────────────────────────────────────────────── */
+  @media (max-width: 680px) {
+    html, body { height: 100dvh; }
+
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+    header h1 { font-size: 1.2rem; }
+    .year-range-ctrl {
+      margin-left: 0;
+      width: 100%;
+      gap: 8px;
+    }
+    .year-range-ctrl-label { font-size: 0.72rem; }
+    .dual-slider[style*="width:160px"] { flex: 1; width: auto !important; }
+
+    .controls {
+      padding: 12px 16px;
+      gap: 16px;
+    }
+    .ctrl input[type=text] { width: 130px; }
+    .dual-slider:not([style]) { width: 200px; }
+
+    .results-info { padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
+    .fav-info { margin-left: 0; }
+
+    .table-wrap { padding: 0 0 60px; }
+    td, th { padding: 8px 10px; }
+
+    /* Bigger touch targets for range thumbs */
+    .dual-slider input[type=range]::-webkit-slider-thumb {
+      width: 24px; height: 24px;
+    }
+    .dual-slider input[type=range]::-moz-range-thumb {
+      width: 20px; height: 20px;
+    }
+
+    .site-footer { padding: 8px 16px; font-size: 0.68rem; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Baby Name Explorer</h1>
+  <h1>Baby Namer</h1>
   <div class="year-range-ctrl">
     <span class="year-range-ctrl-label">Using data from year range:</span>
     <span class="year-bound">1880</span>
@@ -454,6 +497,10 @@
   <div class="ctrl">
     <span class="ctrl-label">Search (regex allowed)</span>
     <input type="text" id="regexBox" placeholder="name…" spellcheck="false">
+  </div>
+  <div class="ctrl">
+    <span class="ctrl-label">Last name <span class="col-tip-icon" data-tip="surname">?</span></span>
+    <input type="text" id="surnameBox" placeholder="e.g. Smith" spellcheck="false" autocomplete="off">
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Letters</span>
@@ -544,6 +591,7 @@ let nameData = {};
 
 let favoriteNames = new Set(JSON.parse(localStorage.getItem(FAVS_KEY) || '[]'));
 let favoritesMode = false;
+let surname = '';
 
 // ── Settings persistence ──────────────────────────────────────────────────────
 
@@ -562,6 +610,7 @@ function saveSettings() {
     yearStart:    document.getElementById('yearStart').value,
     yearEnd:      document.getElementById('yearEnd').value,
     favoritesMode,
+    surname,
   }));
 }
 
@@ -678,7 +727,7 @@ function renderTable() {
         <td class="td-name">
           <div class="td-name-row">
             <button class="fav-btn${isFav ? ' is-fav' : ''}" data-name="${esc(n.name)}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">♥</button>
-            <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" target="_blank" rel="noopener">${esc(n.name)}</a>
+            <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" target="_blank" rel="noopener">${esc(n.name)}${surname ? ' ' + esc(surname) : ''}</a>
           </div>
           ${usageHtml(n.name)}
         </td>
@@ -940,6 +989,8 @@ function colTipText(key) {
       return `Total babies registered with this name in the US from ${yr}, per Social Security Administration records.`;
     case 'pctM':
       return `Share of babies with this name recorded as male at birth in SSA data from ${yr}.`;
+    case 'surname':
+      return `Just for visualization — type a last name to see how it pairs with each first name. Doesn't affect filtering or sorting.`;
     case 'threshold':
       return `Filter by how gendered a name is. Drag the pink handle to set the minimum % male (excludes very female names) and the blue handle to set the maximum (excludes very male names). Names in between are shown.`;
     default: return '';
@@ -1019,7 +1070,8 @@ document.getElementById('yearEnd').addEventListener('input', function() {
 
 document.getElementById('firstLetter').addEventListener('change', () => { saveSettings(); renderTable(); });
 document.getElementById('lastLetter').addEventListener('change',  () => { saveSettings(); renderTable(); });
-document.getElementById('usageBox').addEventListener('input',     () => { saveSettings(); renderTable(); });
+document.getElementById('usageBox').addEventListener('input',  () => { saveSettings(); renderTable(); });
+document.getElementById('surnameBox').addEventListener('input', function() { surname = this.value; saveSettings(); renderTable(); });
 
 document.getElementById('regexBox').addEventListener('input', function() {
   const val = this.value.trim();
@@ -1103,6 +1155,7 @@ document.getElementById('regexBox').addEventListener('input', function() {
       if (saved.lastLetter)  document.getElementById('lastLetter').value  = saved.lastLetter;
       if (saved.regexBox)    document.getElementById('regexBox').value    = saved.regexBox;
       if (saved.usageBox)    document.getElementById('usageBox').value    = saved.usageBox;
+      if (saved.surname)   { document.getElementById('surnameBox').value  = saved.surname; surname = saved.surname; }
       if (saved.tags?.length) {
         saved.tags.forEach(tag => {
           const cb = document.querySelector(`.tag-checkbox[value="${tag}"]`);
