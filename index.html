@@ -224,6 +224,7 @@
     width: 160px;
     background: rgba(255,255,255,0.96);
   }
+  .ctrl input[type=text]::placeholder { color: #b0b0b0; }
   .ctrl input[type=text]:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
   .ctrl input[type=text].invalid { border-color: #f87171; background: #fef2f2; }
 
@@ -594,11 +595,11 @@
 <div class="controls">
   <div class="ctrl">
     <span class="ctrl-label">Search (regex allowed)</span>
-    <input type="text" id="regexBox" placeholder="name…" spellcheck="false">
+    <input type="text" id="regexBox" placeholder="Adrian" spellcheck="false">
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Surname(s) <span class="col-tip-icon" data-tip="surname">?</span></span>
-    <input type="text" id="surnameBox" placeholder="e.g. Smith" spellcheck="false" autocomplete="off">
+    <input type="text" id="surnameBox" placeholder="Smith" spellcheck="false" autocomplete="off">
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Letters</span>
@@ -615,7 +616,7 @@
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Usage <span class="col-tip-icon" data-tip="usage">?</span></span>
-    <input type="text" id="usageBox" placeholder="e.g. Dutch AND Hebrew" spellcheck="false" style="width:200px">
+    <input type="text" id="usageBox" placeholder="Dutch AND Hebrew" spellcheck="false" style="width:200px">
   </div>
   <div class="ctrl" style="display:none" aria-hidden="true" id="tagChecksCtrl">
     <div class="tag-checks" id="tagChecks"></div>
