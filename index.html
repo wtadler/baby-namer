@@ -476,7 +476,7 @@
     #nameTable thead th:nth-child(1) { width: 40px; }
     #nameTable thead th:nth-child(3) { width: 64px; }
     #nameTable thead th:nth-child(4) { width: 88px; }
-    #nameTable thead th:nth-child(5) { width: 58px; }
+    #nameTable thead th:nth-child(5) { width: 74px; }
 
     /* Hide ? icons at narrow widths — they fall into the gutter */
     .col-tip-icon { display: none; }
@@ -544,7 +544,7 @@
     #nameTable thead th:nth-child(1) { width: 32px; }
     #nameTable thead th:nth-child(3) { width: 56px; }
     #nameTable thead th:nth-child(4) { width: 76px; }
-    #nameTable thead th:nth-child(5) { width: 52px; }
+    #nameTable thead th:nth-child(5) { width: 64px; }
     th { font-size: 0.68rem; letter-spacing: 0.04em; }
     td { font-size: 0.82rem; }
     .td-name { font-size: 0.88rem; }
@@ -612,13 +612,13 @@
     <div class="tag-checks" id="tagChecks"></div>
   </div>
   <div class="ctrl">
-    <span class="ctrl-label">% Assigned Male <span class="col-tip-icon" data-tip="threshold">?</span></span>
+    <span class="ctrl-label">% Recorded as Male</span>
     <div class="dual-slider thresh-slider">
       <div class="dual-fill" id="dualFill"></div>
       <input type="range" id="threshMin" min="0" max="100" value="10" step="1">
       <input type="range" id="threshMax" min="0" max="100" value="90" step="1">
     </div>
-    <div class="threshold-desc" id="threshDesc">Showing names that are 10%–90% male</div>
+    <div class="threshold-desc" id="threshDesc">Showing names that are 10%–90% recorded as male <span class="col-tip-icon" data-tip="threshold">?</span></div>
   </div>
 </div>
 
@@ -643,7 +643,7 @@
         <th data-col="name">Name <span class="sort-arrow">▲▼</span></th>
         <th data-col="total" class="sorted"><span class="th-full">Popularity</span><span class="th-short">Pop</span><span class="sort-arrow">▼</span> <span class="col-tip-icon" data-tip="popularity">?</span></th>
         <th data-col="total"><span class="th-full">Total births</span><span class="th-short">Births</span><span class="sort-arrow">▲▼</span> <span class="col-tip-icon" data-tip="total">?</span></th>
-        <th data-col="pctM"><span class="th-full">% Assigned Male</span><span class="th-short">% M</span><span class="sort-arrow">▲▼</span> <span class="col-tip-icon" data-tip="pctM">?</span></th>
+        <th data-col="pctM"><span class="th-full">% Recorded as Male</span><span class="th-short">% M</span><span class="sort-arrow">▲▼</span> <span class="col-tip-icon" data-tip="pctM">?</span></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -962,9 +962,9 @@ function updateThreshDesc() {
   const max = parseInt(document.getElementById('threshMax').value, 10);
   let desc;
   if (min === 0 && max === 100) desc = 'Showing all names';
-  else if (min === 0)           desc = `Names that are ≤${max}% male`;
-  else if (max === 100)         desc = `Names that are ≥${min}% male`;
-  else                          desc = `Names that are ${min}%–${max}% male`;
+  else if (min === 0)           desc = `Names that are ≤${max}% recorded as male`;
+  else if (max === 100)         desc = `Names that are ≥${min}% recorded as male`;
+  else                          desc = `Names that are ${min}%–${max}% recorded as male`;
   document.getElementById('threshDesc').textContent = desc;
 }
 
@@ -1133,7 +1133,7 @@ function colTipText(key) {
     case 'surname':
       return `Just for visualization — type a last name to see how it pairs with each first name. Doesn't affect filtering or sorting.`;
     case 'threshold':
-      return `Filter by how gendered a name is. Drag the pink handle to set the minimum % male (excludes very female names) and the blue handle to set the maximum (excludes very male names). Names in between are shown.`;
+      return `Filter by how gendered a name is. Drag the pink handle to set the minimum % recorded as male (excludes very female names) and the blue handle to set the maximum (excludes very male names). Names in between are shown.`;
     default: return '';
   }
 }
