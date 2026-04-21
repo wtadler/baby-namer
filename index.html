@@ -1249,9 +1249,18 @@ document.getElementById('regexBox').addEventListener('input', function() {
     allNames = names;
     globalMaxTotal = Math.max(...allNames.map(n => n.total), 1);
 
-    const tagLabels = { jewish: 'Jewish', water: 'Water' };
+    const tagLabels = {};
     for (const [key, nameList] of Object.entries(tagsRaw)) {
       tagSets[key] = new Set(nameList);
+    }
+
+    // Inject synthetic "Jewish" usage for every name in the jewish list
+    for (const name of (tagSets.jewish ?? [])) {
+      if (!nameData[name]) nameData[name] = { usages: [] };
+      if (!nameData[name].usages) nameData[name].usages = [];
+      if (!nameData[name].usages.some(u => u.usage_code === 'jewish')) {
+        nameData[name].usages.push({ usage_code: 'jewish', usage_full: 'Jewish' });
+      }
     }
 
     const ssnNames = new Set(allNames.map(n => n.name));
