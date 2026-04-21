@@ -175,7 +175,8 @@
     font-size: 0.72rem;
     font-weight: 700;
     color: #999;
-    background: #edf4fb;
+    background: #f7fafd;
+    border: 1px solid #d8e8f2;
     border-radius: 50%;
     cursor: help;
     margin-left: 4px;
@@ -345,7 +346,7 @@
   /* Column widths — set on th so @media can override (table-layout:fixed uses first-row widths) */
   #nameTable thead th:nth-child(1) { width: 48px; }
   #nameTable thead th:nth-child(3) { width: 195px; }
-  #nameTable thead th:nth-child(4) { width: 150px; }
+  #nameTable thead th:nth-child(4) { width: 158px; }
   #nameTable thead th:nth-child(5) { width: 200px; }
 
   .bar-cell { display: flex; align-items: center; gap: 8px; }
@@ -474,8 +475,11 @@
   @media (max-width: 920px) {
     #nameTable thead th:nth-child(1) { width: 40px; }
     #nameTable thead th:nth-child(3) { width: 64px; }
-    #nameTable thead th:nth-child(4) { width: 84px; }
+    #nameTable thead th:nth-child(4) { width: 88px; }
     #nameTable thead th:nth-child(5) { width: 58px; }
+
+    /* Hide ? icons at narrow widths — they fall into the gutter */
+    .col-tip-icon { display: none; }
 
     .td-pop .pop-bar-track,
     .td-pct .bar-track {
@@ -532,9 +536,6 @@
     .ctrl input[type=text] { width: 120px; }
     .dual-slider:not([style]) { width: 200px; }
 
-    /* Hide ? icons on mobile — they get clipped */
-    .col-tip-icon { display: none; }
-
     .results-info { padding: 6px 14px; flex-wrap: wrap; gap: 6px; }
     .fav-info { margin-left: 0; }
 
@@ -542,7 +543,7 @@
     td, th { padding: 7px 7px; }
     #nameTable thead th:nth-child(1) { width: 32px; }
     #nameTable thead th:nth-child(3) { width: 56px; }
-    #nameTable thead th:nth-child(4) { width: 68px; }
+    #nameTable thead th:nth-child(4) { width: 76px; }
     #nameTable thead th:nth-child(5) { width: 52px; }
     th { font-size: 0.68rem; letter-spacing: 0.04em; }
     td { font-size: 0.82rem; }
@@ -875,7 +876,7 @@ function renderTable() {
 
   for (let i = 0; i < Math.min(filtered.length, limit); i++) {
     const n = filtered[i];
-    const pctMLabel = Math.round(n.pctM);
+    const pctMLabel = window.innerWidth <= 680 ? Math.round(n.pctM) : n.pctM.toFixed(1);
     const isFav = favoriteNames.has(n.name);
     rows.push(`
       <tr>
