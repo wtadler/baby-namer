@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Long-running enrichment script: fetches Behind the Name API data for all SSA names.
-Priority order: jewish → water → everything else (by SSA popularity).
-Rate: 360 requests/hour = 1 request every 10 seconds.
+Priority order: all tags.json names first (by SSA popularity), then remaining SSA names.
+Rate: 4,000 requests/day = 1 request every 21.6 seconds.
 
 Run in background:  python3 fetch_all_namedata.py &
 Interrupt safely:   Ctrl-C  (progress is saved after every request)
@@ -18,7 +18,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 API_KEY  = "wi835199366"
-DELAY    = 3600 / 360          # 10.0 seconds per request
+DELAY    = 86400 / 4000        # 21.6 seconds — respects 4,000/day limit
 OUT_FILE = "namedata.json"
 
 # ── 1. Aggregate SSA counts ───────────────────────────────────────────────────
@@ -48,8 +48,7 @@ def total(name):
 with open("tags.json") as fh:
     tags = json.load(fh)
 
-jewish_names = set(tags.get("jewish", []))
-water_names  = set(tags.get("water",  []))
+tagged_names = set(n for lst in tags.values() for n in lst)
 
 # ── 3. Load existing results ──────────────────────────────────────────────────
 if os.path.exists(OUT_FILE):
@@ -62,19 +61,18 @@ else:
 already = set(results.keys())
 
 # ── 4. Build priority queue ───────────────────────────────────────────────────
-# Tier 1: jewish names (by SSA popularity, include ones not in SSA data too)
-tier1 = sorted(jewish_names - already, key=lambda n: -total(n))
-# Tier 2: water names not already covered
-tier2 = sorted((water_names - jewish_names) - already, key=lambda n: -total(n))
-# Tier 3: all remaining SSA names
-tier3 = sorted((all_ssa - jewish_names - water_names) - already, key=lambda n: -total(n))
+# Tier 1: all tagged names (any tags.json key), by SSA popularity
+tier1 = sorted(tagged_names - already, key=lambda n: -total(n))
+# Tier 2: all remaining SSA names by popularity
+tier2 = sorted((all_ssa - tagged_names) - already, key=lambda n: -total(n))
 
-todo = tier1 + tier2 + tier3
+todo = tier1 + tier2
 total_todo = len(todo)
 
-print(f"\nQueue: {len(tier1)} jewish  +  {len(tier2)} water  +  {len(tier3)} others  =  {total_todo} total")
+days = total_todo * DELAY / 86400
 eta = datetime.now() + timedelta(seconds=total_todo * DELAY)
-print(f"At 360/hr this will take ~{total_todo/360:.1f} hrs  (ETA {eta.strftime('%a %H:%M')} if uninterrupted)\n")
+print(f"\nQueue: {len(tier1)} tagged  +  {len(tier2)} others  =  {total_todo} total")
+print(f"At 4000/day this will take ~{days:.1f} days  (ETA {eta.strftime('%a %b %d %H:%M')} if uninterrupted)\n")
 
 # ── 5. Fetch loop ─────────────────────────────────────────────────────────────
 def save():
@@ -91,7 +89,7 @@ for i, name in enumerate(todo):
             data = raw[0] if isinstance(raw, list) and raw else raw
             results[name] = data
             usages = " · ".join(u["usage_full"] for u in data.get("usages", []))
-            tier = "J" if name in jewish_names else ("W" if name in water_names else " ")
+            tier = "T" if name in tagged_names else " "
             print(f"[{tier}] {i+1:>5}/{total_todo}  {name:<22} {data.get('gender','?')}  {usages}")
     except KeyboardInterrupt:
         print("\nInterrupted — saving progress…")
