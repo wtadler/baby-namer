@@ -759,15 +759,24 @@ function buildUsageMatcher(raw) {
 
   let pos = 0;
 
-  function parseExpr() {
+  function parseExpr() {       // handles OR (lower precedence)
+    let node = parseAnd();
+    while (pos < tokens.length && tokens[pos] === 'OR') {
+      pos++;
+      const right = parseAnd();
+      const l = node, r = right;
+      node = (u) => l(u) || r(u);
+    }
+    return node;
+  }
+
+  function parseAnd() {        // handles AND (higher precedence)
     let node = parseTerm();
-    while (pos < tokens.length && (tokens[pos] === 'AND' || tokens[pos] === 'OR')) {
-      const op = tokens[pos++];
+    while (pos < tokens.length && tokens[pos] === 'AND') {
+      pos++;
       const right = parseTerm();
       const l = node, r = right;
-      node = op === 'AND'
-        ? (usages) => l(usages) && r(usages)
-        : (usages) => l(usages) || r(usages);
+      node = (u) => l(u) && r(u);
     }
     return node;
   }
@@ -775,7 +784,7 @@ function buildUsageMatcher(raw) {
   function parseTerm() {
     if (tokens[pos] === 'NOT') {
       pos++;
-      const inner = parseAtom();
+      const inner = parseTerm();   // recurse to handle NOT NOT
       return (usages) => !inner(usages);
     }
     return parseAtom();
@@ -798,16 +807,16 @@ function buildUsageMatcher(raw) {
     return () => true;
   }
 
-  try {
-    return parseExpr();
-  } catch (e) {
-    // fallback: original substring match
+  const matcher = parseExpr();
+  if (pos < tokens.length) {
+    // unconsumed tokens = malformed query; fall back to substring
     const lower = q.toLowerCase();
     return (usages) => usages.some(u =>
       u.usage_full.toLowerCase().includes(lower) ||
       u.usage_code.toLowerCase().includes(lower)
     );
   }
+  return matcher;
 }
 
 function getFiltered() {
