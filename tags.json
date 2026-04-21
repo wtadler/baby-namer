@@ -119,5 +119,45 @@
     "Undine",
     "Wade", "Waverly",
     "Yam", "Yarden"
+  ],
+  "fire": [
+    "Aidan", "Aiden", "Agni", "Aine", "Alinta", "Azar",
+    "Blaze", "Brand", "Bren", "Brigid", "Brigitte",
+    "Cole", "Cyrus",
+    "Edan", "Ember",
+    "Fiamma",
+    "Hestia",
+    "Ignatius",
+    "Keahi", "Kenneth",
+    "Nuri",
+    "Pele", "Phoenix", "Prometheus",
+    "Seraph", "Seraphina", "Surya",
+    "Tana",
+    "Vesta", "Vulcan"
+  ],
+  "celestial": [
+    "Altair", "Andromeda", "Aquila", "Ara", "Astra", "Aurora",
+    "Carina", "Castor", "Celeste",
+    "Draco",
+    "Electra", "Elio", "Estrella",
+    "Helios",
+    "Luna", "Lyra",
+    "Nova",
+    "Orion",
+    "Perseus", "Phoebe",
+    "Rigel",
+    "Selene", "Sirius", "Sol", "Soleil", "Stella",
+    "Vega", "Vesper"
+  ],
+  "music": [
+    "Allegra", "Anthem", "Aria",
+    "Cadence", "Calliope", "Carol", "Celesta", "Chantelle", "Chorus",
+    "Fife",
+    "Harmony",
+    "Lyra", "Lyric",
+    "Melody",
+    "Piper",
+    "Serenade", "Sonata",
+    "Viola"
   ]
 }
