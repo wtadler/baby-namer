@@ -297,8 +297,8 @@
     white-space: nowrap;
   }
   th:hover { color: #3b82f6; }
-  th .sort-arrow { margin-left: 4px; opacity: 0.4; }
-  th.sorted .sort-arrow { opacity: 1; color: #3b82f6; }
+  th .sort-arrow { margin-left: 4px; opacity: 0.25; font-size: 0.65rem; }
+  th.sorted .sort-arrow { opacity: 1; color: #3b82f6; font-size: 0.65rem; }
   .th-short { display: none; }
 
   tbody tr {
@@ -507,33 +507,42 @@
     header {
       flex-direction: column;
       align-items: flex-start;
-      gap: 8px;
-      padding: 12px 16px;
+      gap: 6px;
+      padding: 10px 14px;
     }
-    header h1 { font-size: 1.2rem; }
+    header h1 { font-size: 1.1rem; }
+
+    /* Year range: label on top, slider full-width, value below */
     .year-range-ctrl {
       margin-left: 0;
       width: 100%;
-      gap: 8px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
     }
-    .year-range-ctrl-label { font-size: 0.72rem; }
-    .dual-slider[style*="width:160px"] { flex: 1; width: auto !important; }
+    .year-range-ctrl-label { font-size: 0.7rem; }
+    .year-bound { display: none; }
+    .dual-slider[style*="width:160px"] { width: 100% !important; }
+    .year-range-val { font-size: 0.72rem; }
 
     .controls {
-      padding: 12px 16px;
-      gap: 16px;
+      padding: 10px 14px;
+      gap: 12px;
     }
-    .ctrl input[type=text] { width: 130px; }
+    .ctrl input[type=text] { width: 120px; }
     .dual-slider:not([style]) { width: 200px; }
 
-    .results-info { padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
+    /* Hide ? icons on mobile — they get clipped */
+    .col-tip-icon { display: none; }
+
+    .results-info { padding: 6px 14px; flex-wrap: wrap; gap: 6px; }
     .fav-info { margin-left: 0; }
 
     .table-wrap { padding: 0 0 60px; overflow-x: hidden; }
-    td, th { padding: 8px 8px; }
-    #nameTable thead th:nth-child(1) { width: 36px; }
+    td, th { padding: 7px 7px; }
+    #nameTable thead th:nth-child(1) { width: 32px; }
     #nameTable thead th:nth-child(3) { width: 56px; }
-    #nameTable thead th:nth-child(4) { width: 72px; }
+    #nameTable thead th:nth-child(4) { width: 68px; }
     #nameTable thead th:nth-child(5) { width: 52px; }
     th { font-size: 0.68rem; letter-spacing: 0.04em; }
     td { font-size: 0.82rem; }
@@ -541,12 +550,6 @@
     .name-usages { display: none; }
     .pct-label { font-size: 0.72rem; }
     .td-total { font-size: 0.78rem; }
-    .col-tip-icon {
-      width: 14px;
-      height: 14px;
-      font-size: 0.64rem;
-      margin-left: 2px;
-    }
     th .sort-arrow { margin-left: 2px; }
 
     /* Bigger touch targets for range thumbs */
@@ -557,7 +560,7 @@
       width: 20px; height: 20px;
     }
 
-    .site-footer { padding: 8px 16px; font-size: 0.68rem; }
+    .site-footer { padding: 8px 14px; font-size: 0.68rem; }
   }
 </style>
 </head>
@@ -604,8 +607,7 @@
     <span class="ctrl-label">Usage</span>
     <input type="text" id="usageBox" placeholder="e.g. Hebrew AND Biblical" spellcheck="false">
   </div>
-  <div class="ctrl">
-    <span class="ctrl-label">Tags</span>
+  <div class="ctrl" style="display:none" aria-hidden="true" id="tagChecksCtrl">
     <div class="tag-checks" id="tagChecks"></div>
   </div>
   <div class="ctrl">
@@ -637,10 +639,10 @@
     <thead>
       <tr>
         <th class="td-rank"></th>
-        <th data-col="name">Name <span class="sort-arrow">↕</span></th>
-        <th data-col="total" class="sorted"><span class="th-full">Popularity</span><span class="th-short">Pop</span><span class="sort-arrow">↓</span> <span class="col-tip-icon" data-tip="popularity">?</span></th>
-        <th data-col="total"><span class="th-full">Total births</span><span class="th-short">Births</span><span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="total">?</span></th>
-        <th data-col="pctM"><span class="th-full">% Assigned Male</span><span class="th-short">% M</span><span class="sort-arrow">↕</span> <span class="col-tip-icon" data-tip="pctM">?</span></th>
+        <th data-col="name">Name <span class="sort-arrow">▲▼</span></th>
+        <th data-col="total" class="sorted"><span class="th-full">Popularity</span><span class="th-short">Pop</span><span class="sort-arrow">▼</span> <span class="col-tip-icon" data-tip="popularity">?</span></th>
+        <th data-col="total"><span class="th-full">Total births</span><span class="th-short">Births</span><span class="sort-arrow">▲▼</span> <span class="col-tip-icon" data-tip="total">?</span></th>
+        <th data-col="pctM"><span class="th-full">% Assigned Male</span><span class="th-short">% M</span><span class="sort-arrow">▲▼</span> <span class="col-tip-icon" data-tip="pctM">?</span></th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -873,7 +875,7 @@ function renderTable() {
 
   for (let i = 0; i < Math.min(filtered.length, limit); i++) {
     const n = filtered[i];
-    const pctMLabel = n.pctM.toFixed(1);
+    const pctMLabel = Math.round(n.pctM);
     const isFav = favoriteNames.has(n.name);
     rows.push(`
       <tr>
@@ -1168,10 +1170,10 @@ document.querySelector('thead').addEventListener('click', e => {
   }
   document.querySelectorAll('th[data-col]').forEach(t => {
     t.classList.remove('sorted');
-    t.querySelector('.sort-arrow').textContent = '↕';
+    t.querySelector('.sort-arrow').textContent = '▲▼';
   });
   th.classList.add('sorted');
-  th.querySelector('.sort-arrow').textContent = sortDir === 1 ? '↓' : '↑';
+  th.querySelector('.sort-arrow').textContent = sortDir === 1 ? '▼' : '▲';
   saveSettings();
   renderTable();
 });
@@ -1318,12 +1320,12 @@ document.getElementById('regexBox').addEventListener('input', function() {
       if (saved.sortCol) {
         document.querySelectorAll('th[data-col]').forEach(t => {
           t.classList.remove('sorted');
-          t.querySelector('.sort-arrow').textContent = '↕';
+          t.querySelector('.sort-arrow').textContent = '▲▼';
         });
         const sortedTh = document.querySelector(`th[data-col="${saved.sortCol}"]`);
         if (sortedTh) {
           sortedTh.classList.add('sorted');
-          sortedTh.querySelector('.sort-arrow').textContent = (saved.sortDir ?? 1) === 1 ? '↓' : '↑';
+          sortedTh.querySelector('.sort-arrow').textContent = (saved.sortDir ?? 1) === 1 ? '▼' : '▲';
         }
       }
     }
