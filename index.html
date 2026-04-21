@@ -579,7 +579,7 @@
 <header>
   <h1>Baby Namer</h1>
   <div class="year-range-ctrl">
-    <span class="year-range-ctrl-label">Using data from year range:</span>
+    <span class="year-range-ctrl-label">Using data from year range: <span class="col-tip-icon" data-tip="yearrange">?</span></span>
     <span class="year-bound">1880</span>
     <div class="dual-slider" style="width:160px">
       <div class="dual-fill" id="yearFill"></div>
@@ -624,10 +624,10 @@
     <span class="ctrl-label">% Recorded as Male <span class="col-tip-icon" data-tip="threshold">?</span></span>
     <div class="dual-slider thresh-slider">
       <div class="dual-fill" id="dualFill"></div>
-      <input type="range" id="threshMin" min="0" max="100" value="10" step="1">
-      <input type="range" id="threshMax" min="0" max="100" value="90" step="1">
+      <input type="range" id="threshMin" min="0" max="100" value="0" step="1">
+      <input type="range" id="threshMax" min="0" max="100" value="100" step="1">
     </div>
-    <div class="threshold-desc" id="threshDesc">Showing names that are 10%–90% recorded as male</div>
+    <div class="threshold-desc" id="threshDesc">Showing names that are 0%–100% recorded as male</div>
   </div>
 </div>
 
@@ -1145,6 +1145,8 @@ function colTipText(key) {
       return `Filter by language or cultural origin, powered by behindthename.com. Supports AND, OR, NOT, and parentheses — e.g. "Dutch AND Hebrew", "Celtic OR Germanic", "English NOT Biblical".`;
     case 'surname':
       return `Just for visualization — type a last name to see how it pairs with each first name. Doesn't affect filtering or sorting.`;
+    case 'yearrange':
+      return `Only names where SSA recorded at least 5 births in a given year are included. Names must appear in at least one year within the selected range to show up.`;
     case 'threshold':
       return `Filter by how gendered a name is. Drag the pink handle to set the minimum % recorded as male (excludes very female names) and the blue handle to set the maximum (excludes very male names). Names in between are shown.`;
     default: return '';
