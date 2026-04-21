@@ -602,7 +602,7 @@
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Usage</span>
-    <input type="text" id="usageBox" placeholder="e.g. Hebrew, Biblical…" spellcheck="false">
+    <input type="text" id="usageBox" placeholder="e.g. Hebrew AND Biblical" spellcheck="false">
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Tags</span>
@@ -745,6 +745,71 @@ let sortDir = 1;
 
 // ── Filtering & rendering ─────────────────────────────────────────────────────
 
+function buildUsageMatcher(raw) {
+  const q = raw.trim();
+  if (!q) return null;
+
+  const tokens = [];
+  const re = /\(|\)|\bAND\b|\bOR\b|\bNOT\b|[^\s()]+/gi;
+  let m;
+  while ((m = re.exec(q)) !== null) {
+    const t = m[0];
+    tokens.push(['AND','OR','NOT','(', ')'].includes(t.toUpperCase()) ? t.toUpperCase() : t.toLowerCase());
+  }
+
+  let pos = 0;
+
+  function parseExpr() {
+    let node = parseTerm();
+    while (pos < tokens.length && (tokens[pos] === 'AND' || tokens[pos] === 'OR')) {
+      const op = tokens[pos++];
+      const right = parseTerm();
+      const l = node, r = right;
+      node = op === 'AND'
+        ? (usages) => l(usages) && r(usages)
+        : (usages) => l(usages) || r(usages);
+    }
+    return node;
+  }
+
+  function parseTerm() {
+    if (tokens[pos] === 'NOT') {
+      pos++;
+      const inner = parseAtom();
+      return (usages) => !inner(usages);
+    }
+    return parseAtom();
+  }
+
+  function parseAtom() {
+    if (tokens[pos] === '(') {
+      pos++;
+      const inner = parseExpr();
+      if (tokens[pos] === ')') pos++;
+      return inner;
+    }
+    if (pos < tokens.length && !['AND','OR','NOT',')'].includes(tokens[pos])) {
+      const word = tokens[pos++];
+      return (usages) => usages.some(u =>
+        u.usage_full.toLowerCase().includes(word) ||
+        u.usage_code.toLowerCase().includes(word)
+      );
+    }
+    return () => true;
+  }
+
+  try {
+    return parseExpr();
+  } catch (e) {
+    // fallback: original substring match
+    const lower = q.toLowerCase();
+    return (usages) => usages.some(u =>
+      u.usage_full.toLowerCase().includes(lower) ||
+      u.usage_code.toLowerCase().includes(lower)
+    );
+  }
+}
+
 function getFiltered() {
   if (favoritesMode) {
     return allNames.filter(n => favoriteNames.has(n.name));
@@ -760,7 +825,11 @@ function getFiltered() {
     try { re = new RegExp(rawRegex, 'i'); } catch(e) { re = null; }
   }
   const checkedTags = [...document.querySelectorAll('.tag-checkbox:checked')].map(el => el.value);
-  const usageQuery  = document.getElementById('usageBox').value.trim().toLowerCase();
+  const usageRaw    = document.getElementById('usageBox').value.trim();
+
+  const themeMatch = usageRaw.match(/^~(\w+)$/);
+  const themeSet   = themeMatch ? (tagSets[themeMatch[1].toLowerCase()] ?? new Set()) : null;
+  const usageMatcher = themeSet ? null : buildUsageMatcher(usageRaw);
 
   return allNames.filter(n => {
     if (n.pctM < minPct || n.pctM > maxPct) return false;
@@ -768,12 +837,10 @@ function getFiltered() {
     if (last  && n.name[n.name.length - 1].toUpperCase() !== last) return false;
     if (re && !re.test(n.name)) return false;
     if (checkedTags.length && !checkedTags.every(tag => tagSets[tag]?.has(n.name))) return false;
-    if (usageQuery) {
+    if (themeSet)    return themeSet.has(n.name);
+    if (usageMatcher) {
       const usages = nameData[n.name]?.usages ?? [];
-      if (!usages.some(u =>
-        u.usage_full.toLowerCase().includes(usageQuery) ||
-        u.usage_code.toLowerCase().includes(usageQuery)
-      )) return false;
+      if (!usageMatcher(usages)) return false;
     }
     return true;
   });
