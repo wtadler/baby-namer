@@ -605,8 +605,8 @@
     </div>
   </div>
   <div class="ctrl">
-    <span class="ctrl-label">Usage</span>
-    <input type="text" id="usageBox" placeholder="e.g. Hebrew AND Biblical" spellcheck="false">
+    <span class="ctrl-label">Usage <span class="col-tip-icon" data-tip="usage">?</span></span>
+    <input type="text" id="usageBox" placeholder="e.g. Dutch AND Hebrew" spellcheck="false" style="width:200px">
   </div>
   <div class="ctrl" style="display:none" aria-hidden="true" id="tagChecksCtrl">
     <div class="tag-checks" id="tagChecks"></div>
@@ -1130,6 +1130,8 @@ function colTipText(key) {
       return `Total babies registered with this name in the US from ${yr}, per Social Security Administration records.`;
     case 'pctM':
       return `Share of babies with this name recorded as male at birth in SSA data from ${yr}.`;
+    case 'usage':
+      return `Filter by language or cultural origin, powered by behindthename.com. Supports AND, OR, NOT, and parentheses — e.g. "Dutch AND Hebrew", "Celtic OR Germanic", "English NOT Biblical".`;
     case 'surname':
       return `Just for visualization — type a last name to see how it pairs with each first name. Doesn't affect filtering or sorting.`;
     case 'threshold':
