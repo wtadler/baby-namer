@@ -412,6 +412,13 @@
     min-width: 0;
   }
 
+  .name-with-usages {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+
   .name-usages {
     font-size: 0.7rem;
     color: #9aacbb;
@@ -548,7 +555,9 @@
     th { font-size: 0.68rem; letter-spacing: 0.04em; }
     td { font-size: 0.82rem; }
     .td-name { font-size: 0.88rem; }
-    .name-usages { display: none; }
+    .name-with-usages { flex-direction: row; align-items: baseline; gap: 4px; }
+    .td-name a { flex-shrink: 0; }
+    .name-usages { margin-top: 0; }
     .pct-label { font-size: 0.72rem; }
     .td-total { font-size: 0.78rem; }
     th .sort-arrow { margin-left: 2px; }
@@ -884,9 +893,11 @@ function renderTable() {
         <td class="td-name">
           <div class="td-name-row">
             <button class="fav-btn${isFav ? ' is-fav' : ''}" data-name="${esc(n.name)}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">♥</button>
-            <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" data-first-name="${esc(n.name)}" target="_blank" rel="noopener">${esc(n.name)}${surname ? ' ' + esc(surname) : ''}</a>
+            <div class="name-with-usages">
+              <a href="https://www.behindthename.com/name/${n.name.toLowerCase()}" data-first-name="${esc(n.name)}" target="_blank" rel="noopener">${esc(n.name)}${surname ? ' ' + esc(surname) : ''}</a>
+              ${usageHtml(n.name)}
+            </div>
           </div>
-          ${usageHtml(n.name)}
         </td>
         <td class="td-pop">
           <div class="bar-cell">
