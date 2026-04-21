@@ -39,7 +39,9 @@ async function handleNameDef(request, ctx) {
   }
 
   const cache = caches.default;
-  const cacheKey = new Request(url.toString(), { method: 'GET' });
+  const cacheUrl = new URL(url.toString());
+  cacheUrl.searchParams.set('v', '2');
+  const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' });
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
