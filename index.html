@@ -763,7 +763,7 @@ function loadSavedSettings() {
 
 async function loadScottishData() {
   if (scottishCache) return scottishCache;
-  const res = await fetch('scottish-names-1974-2024/full-list-1974-2024.csv');
+  const res = await fetch('data/scotland/names.csv');
   if (!res.ok) throw new Error(`Scottish data: ${res.status}`);
   const text = await res.text();
   const byYear = new Map();
@@ -801,12 +801,12 @@ async function loadRange(startYear, endYear) {
       let text = yearCache.get(year);
       if (text === undefined) {
         try {
-          const res = await fetch(`ssa-data/yob${year}.txt`);
+          const res = await fetch(`data/us/yob${year}.txt`);
           if (!res.ok) throw new Error(res.status);
           text = await res.text();
           yearCache.set(year, text);
         } catch(e) {
-          console.warn(`Could not load ssa-data/yob${year}.txt:`, e);
+          console.warn(`Could not load data/us/yob${year}.txt:`, e);
           continue;
         }
       }
