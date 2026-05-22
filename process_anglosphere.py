@@ -61,7 +61,13 @@ for row in reader:
         continue
 
     sex_raw = row.get('sex', '').strip().upper()
-    sex = 'Boy' if sex_raw == 'M' else 'Girl'
+    if sex_raw == 'M':
+        sex = 'Boy'
+    elif sex_raw == 'F':
+        sex = 'Girl'
+    else:
+        print(f"WARNING: unexpected sex value {sex_raw!r}, skipping row")
+        continue
 
     name = row.get('name', '').strip().title()
     if not name:
