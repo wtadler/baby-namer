@@ -279,6 +279,7 @@
     line-height: 1.4;
   }
   .icon-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+  .icon-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
   .sep { color: #d5e2ec; margin: 0 2px; font-size: 0.8rem; }
 
   /* Dataset select */
@@ -1000,7 +1001,10 @@ function renderTable() {
     return 0;
   });
 
-  document.getElementById('resultsCount').textContent = `${filtered.length.toLocaleString()} names`;
+  const total = allNames.length;
+  document.getElementById('resultsCount').textContent = filtered.length < total
+    ? `${filtered.length.toLocaleString()} of ${total.toLocaleString()} names`
+    : `${total.toLocaleString()} names`;
 
   const rows = [];
   const limit = 500;
@@ -1048,7 +1052,9 @@ function renderTable() {
   }
 
   document.getElementById('tableBody').innerHTML = rows.join('');
-  document.getElementById('resetFiltersBtn').style.display = isAnyFilterActive() ? '' : 'none';
+  const resetBtn = document.getElementById('resetFiltersBtn');
+  resetBtn.style.display = isAnyFilterActive() ? '' : 'none';
+  resetBtn.disabled = favoritesMode;
 }
 
 function isAnyFilterActive() {
