@@ -265,6 +265,22 @@
   .ios-toggle input:checked + .ios-track .ios-thumb { transform: translateX(16px); }
   .ios-toggle-text { font-size: 0.8rem; color: #4a5d70; }
 
+  /* Favorites export/import buttons */
+  .icon-btn {
+    background: none;
+    border: 1px solid #d5e2ec;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    color: var(--soft-text);
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .icon-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+  .sep { color: #d5e2ec; margin: 0 2px; font-size: 0.8rem; }
+
   /* Dataset select */
   #datasetSelect {
     border: 1px solid #d5e2ec;
@@ -657,6 +673,10 @@
   <span id="resultsCount"></span>
   <div class="fav-info">
     <span id="favCount"></span>
+    <button class="icon-btn" id="exportFavsBtn" style="display:none" title="Download favorites as JSON">↑ Export</button>
+    <button class="icon-btn" id="importFavsBtn" title="Import favorites from JSON file">↓ Import</button>
+    <input type="file" id="importFavsInput" accept=".json" style="display:none">
+    <span class="sep">|</span>
     <label class="ios-toggle">
       <input type="checkbox" id="favToggle">
       <span class="ios-track"><span class="ios-thumb"></span></span>
@@ -1028,6 +1048,39 @@ function dotColor(pctM) {
 function updateFavCount() {
   const n = favoriteNames.size;
   document.getElementById('favCount').textContent = n > 0 ? `${n} favorite${n === 1 ? '' : 's'} marked` : '';
+  document.getElementById('exportFavsBtn').style.display = n > 0 ? '' : 'none';
+}
+
+function exportFavorites() {
+  const blob = new Blob([JSON.stringify([...favoriteNames], null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'baby-namer-favorites.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importFavorites(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!Array.isArray(parsed) || !parsed.every(n => typeof n === 'string')) throw new Error('invalid');
+      parsed.forEach(name => favoriteNames.add(name));
+      localStorage.setItem(FAVS_KEY, JSON.stringify([...favoriteNames]));
+      updateFavCount();
+      renderTable();
+    } catch {
+      const el = document.getElementById('favCount');
+      const orig = el.textContent;
+      const origColor = el.style.color;
+      el.textContent = 'Invalid favorites file';
+      el.style.color = '#ef4444';
+      setTimeout(() => { el.textContent = orig; el.style.color = origColor; }, 3000);
+    }
+  };
+  reader.readAsText(file);
 }
 
 function usageHtml(name) {
@@ -1121,6 +1174,19 @@ document.getElementById('favToggle').addEventListener('change', function() {
   document.querySelector('.controls').classList.toggle('favorites-active', favoritesMode);
   saveSettings();
   renderTable();
+});
+
+document.getElementById('exportFavsBtn').addEventListener('click', exportFavorites);
+
+document.getElementById('importFavsBtn').addEventListener('click', () => {
+  document.getElementById('importFavsInput').click();
+});
+
+document.getElementById('importFavsInput').addEventListener('change', function() {
+  if (this.files[0]) {
+    importFavorites(this.files[0]);
+    this.value = '';
+  }
 });
 
 document.addEventListener('click', e => {
