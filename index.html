@@ -719,15 +719,15 @@ const DATASETS = {
   },
   australia: {
     label: 'Australia', minYear: 1935, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
-    footerHtml: 'Sources: <a href="https://www.abs.gov.au/" target="_blank" rel="noopener">Australian Bureau of Statistics</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    footerHtml: 'Sources: <a href="https://www.abs.gov.au/" target="_blank" rel="noopener">Australian Bureau of Statistics</a> &nbsp;·&nbsp; <a href="https://github.com/kkoopmans/anglosphere-baby-names" target="_blank" rel="noopener">anglosphere-baby-names</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   canada: {
     label: 'Canada', minYear: 1991, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
-    footerHtml: 'Sources: <a href="https://www.statcan.gc.ca/" target="_blank" rel="noopener">Statistics Canada</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    footerHtml: 'Sources: <a href="https://www.statcan.gc.ca/" target="_blank" rel="noopener">Statistics Canada</a> &nbsp;·&nbsp; <a href="https://github.com/kkoopmans/anglosphere-baby-names" target="_blank" rel="noopener">anglosphere-baby-names</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   'england-wales': {
     label: 'England &amp; Wales', minYear: 1996, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
-    footerHtml: 'Sources: <a href="https://www.ons.gov.uk/" target="_blank" rel="noopener">Office for National Statistics</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    footerHtml: 'Sources: <a href="https://www.ons.gov.uk/" target="_blank" rel="noopener">Office for National Statistics</a> &nbsp;·&nbsp; <a href="https://github.com/kkoopmans/anglosphere-baby-names" target="_blank" rel="noopener">anglosphere-baby-names</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   france: {
     label: 'France', minYear: 1900, maxYear: 2022, defaultStart: 2015, defaultEnd: 2022,
@@ -735,15 +735,15 @@ const DATASETS = {
   },
   ireland: {
     label: 'Ireland', minYear: 1964, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
-    footerHtml: 'Sources: <a href="https://www.cso.ie/" target="_blank" rel="noopener">Central Statistics Office Ireland</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    footerHtml: 'Sources: <a href="https://www.cso.ie/" target="_blank" rel="noopener">Central Statistics Office Ireland</a> &nbsp;·&nbsp; <a href="https://github.com/kkoopmans/anglosphere-baby-names" target="_blank" rel="noopener">anglosphere-baby-names</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   'new-zealand': {
     label: 'New Zealand', minYear: 1935, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
-    footerHtml: 'Sources: <a href="https://www.stats.govt.nz/" target="_blank" rel="noopener">Stats NZ</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    footerHtml: 'Sources: <a href="https://www.stats.govt.nz/" target="_blank" rel="noopener">Stats NZ</a> &nbsp;·&nbsp; <a href="https://github.com/kkoopmans/anglosphere-baby-names" target="_blank" rel="noopener">anglosphere-baby-names</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   'northern-ireland': {
     label: 'Northern Ireland', minYear: 1997, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
-    footerHtml: 'Sources: <a href="https://www.nisra.gov.uk/" target="_blank" rel="noopener">NISRA</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    footerHtml: 'Sources: <a href="https://www.nisra.gov.uk/" target="_blank" rel="noopener">NISRA</a> &nbsp;·&nbsp; <a href="https://github.com/kkoopmans/anglosphere-baby-names" target="_blank" rel="noopener">anglosphere-baby-names</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   scotland: {
     label: 'Scotland', minYear: 1974, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024,
@@ -1242,8 +1242,12 @@ function updateDatasetUI() {
 
 async function switchDataset(ds) {
   if (ds === activeDataset) return;
+  const oldMax = DATASETS[activeDataset].maxYear;
+  const yearEndEl = document.getElementById('yearEnd');
+  const wasAtMax = parseInt(yearEndEl.value, 10) === oldMax;
   activeDataset = ds;
   updateDatasetUI();
+  if (wasAtMax) yearEndEl.value = DATASETS[ds].maxYear;
   updateYearFill();
   updateYearLabel();
   saveSettings();
