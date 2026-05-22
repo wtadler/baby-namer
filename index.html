@@ -675,6 +675,7 @@
 
 <div class="results-info" id="resultsInfo">
   <span id="resultsCount"></span>
+  <button class="icon-btn" id="resetFiltersBtn" style="display:none">✕ Reset filters</button>
   <div class="fav-info">
     <span id="favCount"></span>
     <button class="icon-btn" id="exportFavsBtn" style="display:none" title="Download favorites as JSON">↓ Export</button>
@@ -1047,8 +1048,46 @@ function renderTable() {
   }
 
   document.getElementById('tableBody').innerHTML = rows.join('');
+  document.getElementById('resetFiltersBtn').style.display = isAnyFilterActive() ? '' : 'none';
 }
 
+function isAnyFilterActive() {
+  const ds = DATASETS[activeDataset];
+  return (
+    document.getElementById('regexBox').value.trim() !== '' ||
+    document.getElementById('usageBox').value.trim() !== '' ||
+    document.getElementById('firstLetter').value !== '' ||
+    document.getElementById('lastLetter').value !== '' ||
+    parseInt(document.getElementById('threshMin').value, 10) !== 0 ||
+    parseInt(document.getElementById('threshMax').value, 10) !== 100 ||
+    document.querySelectorAll('.tag-checkbox:checked').length > 0 ||
+    favoritesMode ||
+    parseInt(document.getElementById('yearStart').value, 10) !== ds.defaultStart ||
+    parseInt(document.getElementById('yearEnd').value, 10) !== ds.defaultEnd
+  );
+}
+
+function resetFilters() {
+  const ds = DATASETS[activeDataset];
+  document.getElementById('regexBox').value    = '';
+  document.getElementById('usageBox').value    = '';
+  document.getElementById('firstLetter').value = '';
+  document.getElementById('lastLetter').value  = '';
+  document.getElementById('threshMin').value   = 0;
+  document.getElementById('threshMax').value   = 100;
+  document.querySelectorAll('.tag-checkbox:checked').forEach(cb => { cb.checked = false; });
+  if (favoritesMode) {
+    favoritesMode = false;
+    document.getElementById('favToggle').checked = false;
+    document.querySelector('.controls').classList.remove('favorites-active');
+  }
+  document.getElementById('yearStart').value = ds.defaultStart;
+  document.getElementById('yearEnd').value   = ds.defaultEnd;
+  updateSliderFill();
+  updateThreshDesc();
+  saveSettings();
+  onYearChange();
+}
 
 function esc(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1208,6 +1247,8 @@ document.getElementById('importFavsInput').addEventListener('change', function()
     this.value = '';
   }
 });
+
+document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
 
 document.addEventListener('click', e => {
   const btn = e.target.closest('.fav-btn');
