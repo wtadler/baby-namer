@@ -611,9 +611,13 @@
   <h1>Baby Namer</h1>
   <select id="datasetSelect">
     <option value="us">🇺🇸 United States</option>
+    <option value="australia">🇦🇺 Australia</option>
+    <option value="canada">🇨🇦 Canada</option>
     <option value="england-wales">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England &amp; Wales</option>
     <option value="france">🇫🇷 France</option>
+    <option value="ireland">🇮🇪 Ireland</option>
     <option value="new-zealand">🇳🇿 New Zealand</option>
+    <option value="northern-ireland">🇬🇧 Northern Ireland</option>
     <option value="scotland">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland</option>
   </select>
   <div class="year-range-ctrl">
@@ -713,17 +717,33 @@ const DATASETS = {
     label: 'United States', minYear: 1880, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024,
     footerHtml: 'Sources: <a href="https://www.ssa.gov/oact/babynames/" target="_blank" rel="noopener">Social Security Administration</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
+  australia: {
+    label: 'Australia', minYear: 1935, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
+    footerHtml: 'Sources: <a href="https://www.abs.gov.au/" target="_blank" rel="noopener">Australian Bureau of Statistics</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
+  canada: {
+    label: 'Canada', minYear: 1991, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
+    footerHtml: 'Sources: <a href="https://www.statcan.gc.ca/" target="_blank" rel="noopener">Statistics Canada</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
   'england-wales': {
-    label: 'England &amp; Wales', minYear: 1996, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024,
-    footerHtml: 'Sources: <a href="https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/datasets/babynamesinenglandandwalesfrom1996" target="_blank" rel="noopener">Office for National Statistics</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    label: 'England &amp; Wales', minYear: 1996, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
+    footerHtml: 'Sources: <a href="https://www.ons.gov.uk/" target="_blank" rel="noopener">Office for National Statistics</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   france: {
     label: 'France', minYear: 1900, maxYear: 2022, defaultStart: 2015, defaultEnd: 2022,
     footerHtml: 'Sources: <a href="https://www.insee.fr/fr/statistiques/8595130" target="_blank" rel="noopener">INSEE</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
+  ireland: {
+    label: 'Ireland', minYear: 1964, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
+    footerHtml: 'Sources: <a href="https://www.cso.ie/" target="_blank" rel="noopener">Central Statistics Office Ireland</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
   'new-zealand': {
     label: 'New Zealand', minYear: 1935, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
-    footerHtml: 'Sources: <a href="https://catalogue.data.govt.nz/dataset/baby-name-popularity-over-time" target="_blank" rel="noopener">Stats NZ</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+    footerHtml: 'Sources: <a href="https://www.stats.govt.nz/" target="_blank" rel="noopener">Stats NZ</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
+  'northern-ireland': {
+    label: 'Northern Ireland', minYear: 1997, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
+    footerHtml: 'Sources: <a href="https://www.nisra.gov.uk/" target="_blank" rel="noopener">NISRA</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
   },
   scotland: {
     label: 'Scotland', minYear: 1974, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024,
