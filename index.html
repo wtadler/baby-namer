@@ -769,7 +769,8 @@ async function loadCountryData(key) {
     const year = parseInt(yearStr, 10);
     const count = parseInt(countStr, 10);
     if (isNaN(year) || isNaN(count)) continue;
-    const gender = sex === 'Boy' ? 'M' : 'F';
+    const sexLower = sex ? sex.toLowerCase() : '';
+    const gender = (sexLower === 'boy' || sexLower === 'm' || sexLower === 'male' || sexLower === '1') ? 'M' : 'F';
     if (!byYear.has(year)) byYear.set(year, []);
     byYear.get(year).push({ name, gender, count });
   }
@@ -1147,6 +1148,8 @@ function updateDatasetUI() {
 
   if (parseInt(yearStart.value, 10) < ds.minYear) yearStart.value = ds.minYear;
   if (parseInt(yearEnd.value, 10) < ds.minYear) yearEnd.value = ds.minYear;
+  if (parseInt(yearStart.value, 10) > ds.maxYear) yearStart.value = ds.maxYear;
+  if (parseInt(yearEnd.value, 10) > ds.maxYear) yearEnd.value = ds.maxYear;
 
   document.getElementById('siteFooter').innerHTML = ds.footerHtml;
 }
@@ -1158,7 +1161,17 @@ async function switchDataset(ds) {
   updateYearFill();
   updateYearLabel();
   saveSettings();
-  await onYearChange();
+  try {
+    await onYearChange();
+  } catch(e) {
+    console.warn('Failed to load dataset:', ds, e);
+    const countEl = document.getElementById('resultsCount');
+    if (countEl) {
+      const orig = countEl.textContent;
+      countEl.textContent = 'Error loading data';
+      setTimeout(() => { countEl.textContent = orig; }, 3000);
+    }
+  }
 }
 
 document.getElementById('datasetSelect').addEventListener('change', function() {
