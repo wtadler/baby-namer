@@ -265,42 +265,19 @@
   .ios-toggle input:checked + .ios-track .ios-thumb { transform: translateX(16px); }
   .ios-toggle-text { font-size: 0.8rem; color: #4a5d70; }
 
-  /* Dataset toggle */
-  .dataset-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-right: 16px;
-  }
-  .dataset-toggle-label {
-    font-size: 0.78rem;
-    color: var(--soft-text);
-    white-space: nowrap;
+  /* Dataset select */
+  #datasetSelect {
+    border: 1px solid #d5e2ec;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    background: rgba(255,255,255,0.96);
+    outline: none;
     cursor: pointer;
-    transition: color 0.15s;
+    color: #1a1a1a;
+    font-family: inherit;
   }
-  .dataset-toggle-label.active { color: #1f3b63; font-weight: 600; }
-  .dataset-toggle-label:hover { color: #3b82f6; }
-  .dataset-switch {
-    position: relative;
-    width: 36px; height: 20px;
-    background: #3b82f6;
-    border-radius: 10px;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-  .dataset-switch.scottish { background: #2563eb; }
-  .dataset-switch-thumb {
-    position: absolute;
-    top: 2px; left: 2px;
-    width: 16px; height: 16px;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-    transition: transform 0.2s;
-  }
-  .dataset-switch.scottish .dataset-switch-thumb { transform: translateX(16px); }
+  #datasetSelect:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
 
   .table-wrap {
     flex: 1;
@@ -561,8 +538,6 @@
     }
     header h1 { font-size: 1.1rem; }
 
-    .dataset-toggle { margin-right: 0; }
-
     /* Year range: label on top, slider full-width, value below */
     .year-range-ctrl {
       margin-left: 0;
@@ -618,13 +593,13 @@
 
 <header>
   <h1>Baby Namer</h1>
-  <div class="dataset-toggle">
-    <span class="dataset-toggle-label active" id="labelUS" data-ds="us">US</span>
-    <div class="dataset-switch" id="datasetSwitch">
-      <div class="dataset-switch-thumb"></div>
-    </div>
-    <span class="dataset-toggle-label" id="labelScottish" data-ds="scottish">Scotland</span>
-  </div>
+  <select id="datasetSelect">
+    <option value="us">🇺🇸 United States</option>
+    <option value="england-wales">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England &amp; Wales</option>
+    <option value="france">🇫🇷 France</option>
+    <option value="new-zealand">🇳🇿 New Zealand</option>
+    <option value="scotland">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland</option>
+  </select>
   <div class="year-range-ctrl">
     <span class="year-range-ctrl-label">Using data from year range: <span class="col-tip-icon" data-tip="yearrange">?</span></span>
     <span class="year-bound">1880</span>
@@ -714,15 +689,33 @@
 
 <script>
 const DATASETS = {
-  us:       { minYear: 1880, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024 },
-  scottish: { minYear: 1974, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024 },
+  us: {
+    label: 'United States', minYear: 1880, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024,
+    footerHtml: 'Sources: <a href="https://www.ssa.gov/oact/babynames/" target="_blank" rel="noopener">Social Security Administration</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
+  'england-wales': {
+    label: 'England &amp; Wales', minYear: 1996, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
+    footerHtml: 'Sources: <a href="https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/datasets/babynamesinenglandandwalesfrom1996" target="_blank" rel="noopener">Office for National Statistics</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
+  france: {
+    label: 'France', minYear: 1900, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024,
+    footerHtml: 'Sources: <a href="https://www.insee.fr/fr/statistiques/8595130" target="_blank" rel="noopener">INSEE</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
+  'new-zealand': {
+    label: 'New Zealand', minYear: 1954, maxYear: 2023, defaultStart: 2015, defaultEnd: 2023,
+    footerHtml: 'Sources: <a href="https://catalogue.data.govt.nz/dataset/baby-name-popularity-over-time" target="_blank" rel="noopener">Stats NZ</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
+  scotland: {
+    label: 'Scotland', minYear: 1974, maxYear: 2024, defaultStart: 2015, defaultEnd: 2024,
+    footerHtml: 'Sources: <a href="https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/vital-events/names/babies-first-names" target="_blank" rel="noopener">National Records of Scotland</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>',
+  },
 };
 const SETTINGS_KEY  = 'baby-namer-settings';
 const FAVS_KEY      = 'baby-namer-favs';
 
 const yearCache   = new Map();
 const nameDefCache = new Map();
-let scottishCache = null; // parsed Scottish CSV: Map<year, [{name, gender, count}]>
+const countryDataCache = new Map(); // datasetKey -> Map<year, [{name, gender, count}]>
 
 let activeDataset = 'us';
 let tagSets  = {};
@@ -761,14 +754,17 @@ function loadSavedSettings() {
 
 // ── Data loading ──────────────────────────────────────────────────────────────
 
-async function loadScottishData() {
-  if (scottishCache) return scottishCache;
-  const res = await fetch('data/scotland/names.csv');
-  if (!res.ok) throw new Error(`Scottish data: ${res.status}`);
+async function loadCountryData(key) {
+  if (countryDataCache.has(key)) return countryDataCache.get(key);
+  const res = await fetch(`data/${key}/names.csv`);
+  if (!res.ok) throw new Error(`${key} data: ${res.status}`);
   const text = await res.text();
   const byYear = new Map();
   for (const line of text.trim().split('\n').slice(1)) {
-    const [yearStr, sex, name, countStr] = line.split(',');
+    // Use positional indexing (parts[3]) to handle Scotland's 5-col format
+    // (Year,Sex,Name,Number,Rank) and new 4-col format (Year,Sex,Name,Count)
+    const parts = line.split(',');
+    const yearStr = parts[0], sex = parts[1], name = parts[2], countStr = parts[3];
     if (!name) continue;
     const year = parseInt(yearStr, 10);
     const count = parseInt(countStr, 10);
@@ -777,26 +773,14 @@ async function loadScottishData() {
     if (!byYear.has(year)) byYear.set(year, []);
     byYear.get(year).push({ name, gender, count });
   }
-  scottishCache = byYear;
+  countryDataCache.set(key, byYear);
   return byYear;
 }
 
 async function loadRange(startYear, endYear) {
   const nameMap = new Map();
 
-  if (activeDataset === 'scottish') {
-    const byYear = await loadScottishData();
-    for (let year = startYear; year <= endYear; year++) {
-      const rows = byYear.get(year);
-      if (!rows) continue;
-      for (const { name, gender, count } of rows) {
-        if (!nameMap.has(name)) nameMap.set(name, { m: 0, f: 0 });
-        const entry = nameMap.get(name);
-        if (gender === 'M') entry.m += count;
-        else entry.f += count;
-      }
-    }
-  } else {
+  if (activeDataset === 'us') {
     for (let year = startYear; year <= endYear; year++) {
       let text = yearCache.get(year);
       if (text === undefined) {
@@ -819,6 +803,18 @@ async function loadRange(startYear, endYear) {
         const entry = nameMap.get(name);
         if (gender === 'M') entry.m += count;
         else if (gender === 'F') entry.f += count;
+      }
+    }
+  } else {
+    const byYear = await loadCountryData(activeDataset);
+    for (let year = startYear; year <= endYear; year++) {
+      const rows = byYear.get(year);
+      if (!rows) continue;
+      for (const { name, gender, count } of rows) {
+        if (!nameMap.has(name)) nameMap.set(name, { m: 0, f: 0 });
+        const entry = nameMap.get(name);
+        if (gender === 'M') entry.m += count;
+        else entry.f += count;
       }
     }
   }
@@ -1136,12 +1132,7 @@ document.addEventListener('click', e => {
 // ── Dataset toggle ───────────────────────────────────────────────────────────
 
 function updateDatasetUI() {
-  const sw = document.getElementById('datasetSwitch');
-  const labelUS = document.getElementById('labelUS');
-  const labelScottish = document.getElementById('labelScottish');
-  sw.classList.toggle('scottish', activeDataset === 'scottish');
-  labelUS.classList.toggle('active', activeDataset === 'us');
-  labelScottish.classList.toggle('active', activeDataset === 'scottish');
+  document.getElementById('datasetSelect').value = activeDataset;
 
   const ds = DATASETS[activeDataset];
   const yearStart = document.getElementById('yearStart');
@@ -1157,12 +1148,7 @@ function updateDatasetUI() {
   if (parseInt(yearStart.value, 10) < ds.minYear) yearStart.value = ds.minYear;
   if (parseInt(yearEnd.value, 10) < ds.minYear) yearEnd.value = ds.minYear;
 
-  const footer = document.getElementById('siteFooter');
-  if (activeDataset === 'scottish') {
-    footer.innerHTML = 'Sources: <a href="https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/vital-events/names/babies-first-names" target="_blank" rel="noopener">National Records of Scotland</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>';
-  } else {
-    footer.innerHTML = 'Sources: <a href="https://www.ssa.gov/oact/babynames/" target="_blank" rel="noopener">Social Security Administration</a> &nbsp;·&nbsp; <a href="https://www.behindthename.com" target="_blank" rel="noopener">behindthename.com</a>';
-  }
+  document.getElementById('siteFooter').innerHTML = ds.footerHtml;
 }
 
 async function switchDataset(ds) {
@@ -1175,11 +1161,9 @@ async function switchDataset(ds) {
   await onYearChange();
 }
 
-document.getElementById('datasetSwitch').addEventListener('click', () => {
-  switchDataset(activeDataset === 'us' ? 'scottish' : 'us');
+document.getElementById('datasetSelect').addEventListener('change', function() {
+  switchDataset(this.value);
 });
-document.getElementById('labelUS').addEventListener('click', () => switchDataset('us'));
-document.getElementById('labelScottish').addEventListener('click', () => switchDataset('scottish'));
 
 // ── Name definition tooltip ───────────────────────────────────────────────────
 
@@ -1271,21 +1255,17 @@ function colTipText(key) {
     case 'popularity':
       return `Relative popularity for ${yr} — bar length shows how this name's total births compare to the most popular name in the selected period.`;
     case 'total':
-      return activeDataset === 'scottish'
-        ? `Total babies registered with this name in Scotland from ${yr}, per National Records of Scotland.`
-        : `Total babies registered with this name in the US from ${yr}, per Social Security Administration records.`;
+      return `Total babies registered with this name in ${DATASETS[activeDataset].label} from ${yr}.`;
     case 'pctM':
-      return activeDataset === 'scottish'
-        ? `Share of babies with this name recorded as male at birth in NRS data from ${yr}.`
-        : `Share of babies with this name recorded as male at birth in SSA data from ${yr}.`;
+      return `Share of babies with this name recorded as male at birth in ${DATASETS[activeDataset].label} data from ${yr}.`;
     case 'usage':
       return `Filter by language or cultural origin, powered by behindthename.com. Supports AND, OR, NOT, and parentheses — e.g. "Dutch AND Hebrew", "Celtic OR Germanic", "English NOT Biblical".`;
     case 'surname':
       return `Just for visualization — type a last name to see how it pairs with each first name. Doesn't affect filtering or sorting.`;
     case 'yearrange':
-      return activeDataset === 'scottish'
-        ? `Only names where NRS recorded at least 3 births in a given year are included. Names must appear in at least one year within the selected range to show up.`
-        : `Only names where SSA recorded at least 5 births in a given year are included. Names must appear in at least one year within the selected range to show up.`;
+      return activeDataset === 'us'
+        ? `Only names where SSA recorded at least 5 births in a given year are included. Names must appear in at least one year within the selected range to show up.`
+        : `Names must appear in at least one year within the selected range to show up.`;
     case 'threshold':
       return `Filter by how gendered a name is. Drag the pink handle to set the minimum % recorded as male (excludes very female names) and the blue handle to set the maximum (excludes very male names). Names in between are shown.`;
     default: return '';
@@ -1385,6 +1365,7 @@ document.getElementById('regexBox').addEventListener('input', function() {
 (async () => {
   try {
     const saved = loadSavedSettings();
+    if (saved?.dataset === 'scottish') saved.dataset = 'scotland';
     if (saved?.dataset && DATASETS[saved.dataset]) {
       activeDataset = saved.dataset;
     }
