@@ -976,7 +976,7 @@ function getFiltered() {
   const usageMatcher = themeSet ? null : buildUsageMatcher(usageRaw);
 
   return allNames.filter(n => {
-    if (n.total === 0) return false;
+    if (n.total === 0 && !checkedTags.length && !themeSet) return false;
     if (n.pctM < minPct || n.pctM > maxPct) return false;
     if (first && n.name[0].toUpperCase() !== first) return false;
     if (last  && n.name[n.name.length - 1].toUpperCase() !== last) return false;
