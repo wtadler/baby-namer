@@ -1067,14 +1067,11 @@ function isAnyFilterActive() {
     document.getElementById('lastLetter').value !== '' ||
     parseInt(document.getElementById('threshMin').value, 10) !== 0 ||
     parseInt(document.getElementById('threshMax').value, 10) !== 100 ||
-    document.querySelectorAll('.tag-checkbox:checked').length > 0 ||
-    parseInt(document.getElementById('yearStart').value, 10) !== ds.defaultStart ||
-    parseInt(document.getElementById('yearEnd').value, 10) !== ds.defaultEnd
+    document.querySelectorAll('.tag-checkbox:checked').length > 0
   );
 }
 
 function resetFilters() {
-  const ds = DATASETS[activeDataset];
   document.getElementById('regexBox').value    = '';
   document.getElementById('usageBox').value    = '';
   document.getElementById('firstLetter').value = '';
@@ -1087,12 +1084,10 @@ function resetFilters() {
     document.getElementById('favToggle').checked = false;
     document.querySelector('.controls').classList.remove('favorites-active');
   }
-  document.getElementById('yearStart').value = ds.defaultStart;
-  document.getElementById('yearEnd').value   = ds.defaultEnd;
   updateSliderFill();
   updateThreshDesc();
   saveSettings();
-  onYearChange();
+  renderTable();
 }
 
 function esc(s) {
