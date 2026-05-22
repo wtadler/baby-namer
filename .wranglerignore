@@ -1,0 +1,10 @@
+.git/
+.gitignore
+.wrangler/
+.superpowers/
+.env
+.env.local
+docs/
+data/england-wales/raw/
+*.py
+*.md

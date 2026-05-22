@@ -12,7 +12,7 @@ import urllib.parse
 import os
 from collections import defaultdict
 
-API_KEY  = "***REDACTED***"
+API_KEY  = os.environ.get("BTN_API_KEY") or open(".env").read().split("BTN_API_KEY=")[1].split()[0]
 DELAY    = 1.0 / 1.7          # ~0.588s between requests
 TOP_N    = 100
 OUT_FILE = "namedata.json"

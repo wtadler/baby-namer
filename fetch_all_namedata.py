@@ -17,7 +17,7 @@ import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-API_KEY  = "***REDACTED***"
+API_KEY  = os.environ.get("BTN_API_KEY") or open(".env").read().split("BTN_API_KEY=")[1].split()[0]
 DELAY    = 86400 / 4000        # 21.6 seconds — respects 4,000/day limit
 OUT_FILE = "namedata.json"
 
